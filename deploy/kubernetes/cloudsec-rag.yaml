@@ -1,0 +1,94 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cloudsec-rag
+  namespace: secops
+  labels:
+    app.kubernetes.io/name: cloudsec-rag
+    app.kubernetes.io/part-of: enterprise-soc
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: cloudsec-rag
+  template:
+    metadata:
+      labels:
+        app: cloudsec-rag
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+        fsGroup: 10001
+      containers:
+      - name: engine
+        image: cloudsec-rag:v2.0
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8080
+          name: http
+        resources:
+          limits:
+            cpu: "1000m"
+            memory: "1Gi"
+          requests:
+            cpu: "250m"
+            memory: "512Mi"
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+            - ALL
+        env:
+        - name: APP_ENV
+          value: "production"
+        - name: APP_PORT
+          value: "8080"
+        - name: APP_HOST
+          value: "0.0.0.0"
+        - name: DEFAULT_LLM_PROVIDER
+          value: "gemini"
+        - name: GEMINI_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: cloudsec-secrets
+              key: gemini-api-key
+              optional: true
+        volumeMounts:
+        - name: session-storage
+          mountPath: /app/data/sessions
+        - name: tmp-dir
+          mountPath: /tmp
+        livenessProbe:
+          httpGet:
+            path: /api/v1/health
+            port: 8080
+          initialDelaySeconds: 10
+          periodSeconds: 15
+        readinessProbe:
+          httpGet:
+            path: /api/v1/health
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 10
+      volumes:
+      - name: session-storage
+        emptyDir: {}
+      - name: tmp-dir
+        emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cloudsec-rag-service
+  namespace: secops
+spec:
+  type: ClusterIP
+  selector:
+    app: cloudsec-rag
+  ports:
+  - port: 8080
+    targetPort: 8080
+    name: http

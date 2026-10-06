@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  cloudsec-rag:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: cloudsec-rag:v2.0
+    container_name: cloudsec_rag_engine
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      - APP_ENV=production
+      - APP_PORT=8080
+      - APP_HOST=0.0.0.0
+      - DEFAULT_LLM_PROVIDER=mock
+      - GEMINI_API_KEY=${GEMINI_API_KEY:-}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - MIN_GROUNDING_CONFIDENCE=0.85
+      - PROMPT_INJECTION_SHIELD_ENABLED=true
+      - PRIVACY_SCRUBBER_ENABLED=true
+    volumes:
+      - cloudsec_memory:/app/data/sessions
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080/api/v1/health')"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+volumes:
+  cloudsec_memory:
+    driver: local
