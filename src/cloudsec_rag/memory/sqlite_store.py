@@ -170,6 +170,23 @@ class SQLiteEpisodicStore:
             conn.execute("UPDATE incidents SET status = ? WHERE incident_id = ?", (new_status, decision.incident_id))
             conn.commit()
 
+    def record_problem_report(self, report_id: str, incident_id: str, description: str, category: str = "USER_REPORT") -> None:
+        with self._connection() as conn:
+            conn.execute("""
+            CREATE TABLE IF NOT EXISTS problem_reports (
+                report_id TEXT PRIMARY KEY,
+                incident_id TEXT,
+                category TEXT,
+                description TEXT,
+                reported_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+            """)
+            conn.execute("""
+            INSERT INTO problem_reports (report_id, incident_id, category, description)
+            VALUES (?, ?, ?, ?)
+            """, (report_id, incident_id, category, description))
+            conn.commit()
+
     def save_turn(self, item: MemoryItem) -> None:
         """Append a conversational turn to episodic store."""
         with self._connection() as conn:

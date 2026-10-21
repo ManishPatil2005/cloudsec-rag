@@ -141,3 +141,20 @@ class MemoryItem(BaseModel):
     incident_id: Optional[str] = None
     metadata: Dict[str, Any] = Field(default_factory=dict)
     timestamp: datetime = Field(default_factory=datetime.utcnow)
+
+
+class CopilotMessageRequest(BaseModel):
+    """User query to the dashboard AI Security Copilot."""
+    message: str
+    session_id: Optional[str] = "copilot-session-1"
+    current_incident_id: Optional[str] = None
+    current_incident_context: Optional[Dict[str, Any]] = None
+
+
+class CopilotMessageResponse(BaseModel):
+    """Secured and rule-grounded response from the AI Security Copilot."""
+    reply: str
+    rules_enforced: List[str]
+    suggested_actions: List[str] = Field(default_factory=list)
+    incident_id: Optional[str] = None
+    status: str = "SUCCESS"

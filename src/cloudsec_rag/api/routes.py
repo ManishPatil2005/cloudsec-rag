@@ -5,7 +5,14 @@ from fastapi import APIRouter, HTTPException, status
 from pydantic import BaseModel, Field
 
 from ..core.exceptions import PromptInjectionAttemptError
-from ..core.types import BenchmarkReference, GroundedAnalysis, HITLDecision
+from ..core.types import (
+    BenchmarkReference,
+    GroundedAnalysis,
+    HITLDecision,
+    CopilotMessageRequest,
+    CopilotMessageResponse,
+)
+from ..copilot.copilot_service import CopilotSecurityService
 from ..pipeline.orchestrator import CloudSecPipeline
 from ..rag.knowledge_base import get_default_benchmarks
 from ..v2.orchestrator_v2 import CloudSecPipelineV2
@@ -15,6 +22,7 @@ router = APIRouter(prefix="/api", tags=["Cloud Security Operations"])
 
 pipeline_v1 = CloudSecPipeline()
 pipeline_v2 = CloudSecPipelineV2()
+copilot_service = CopilotSecurityService()
 
 
 class AnalyzeRequest(BaseModel):
@@ -44,14 +52,15 @@ class HITLRequest(BaseModel):
 def health_check():
     """Health check endpoint."""
     return {
-        "status": "online",
-        "engine": "CloudSec-RAG",
+        "status": "healthy",
+        "service": "CloudSec-RAG Orchestrator",
         "version": "2.0.0",
         "reachability_verifier": "active",
         "graph_rag_toxic_detector": "active",
         "sustainable_router": "active",
         "anti_hallucination": "active",
         "prompt_injection_shield": "active",
+        "copilot_security_rules": "active",
         "memory_tier_2_sqlite": "connected",
     }
 
@@ -127,6 +136,12 @@ def analyze_cloud_log_v2(req: AnalyzeRequestV2):
         )
 
 
+@router.post("/v1/copilot/chat", response_model=CopilotMessageResponse)
+def copilot_chat_endpoint(req: CopilotMessageRequest):
+    """Secured AI Copilot endpoint with anti-injection shield, PII scrubbing, and problem reporting."""
+    return copilot_service.handle_message(req)
+
+
 @router.post("/v1/hitl/decision", response_model=HITLDecision)
 def submit_hitl_decision(req: HITLRequest):
     """Submit human operator approval or rejection for a security patch."""
@@ -178,3 +193,13 @@ def get_sample_logs_catalog():
             return json.load(f)
     return {"scenarios": []}
 
+
+@router.get("/v1/security-rules")
+def get_security_rules_doc():
+    """Retrieve platform Security & Governance Rules."""
+    from pathlib import Path
+    rules_file = Path(__file__).resolve().parent.parent.parent.parent / "docs" / "SECURITY_RULES.md"
+    if rules_file.exists():
+        with open(rules_file, "r", encoding="utf-8") as f:
+            return {"content": f.read()}
+    return {"content": "Security rules document not found."}
