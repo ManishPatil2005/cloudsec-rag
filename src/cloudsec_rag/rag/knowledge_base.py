@@ -45,9 +45,9 @@ def get_default_benchmarks() -> List[BenchmarkReference]:
             citation_id="CIS-AWS-4.1",
             framework="CIS_AWS_BENCHMARK_v3.0",
             title="Ensure No Security Groups Allow Ingress from 0.0.0.0/0 to Port 22 (SSH)",
-            description="Security groups should not allow unrestricted internet access (0.0.0.0/0) to TCP Port 22.",
-            rationale="Publicly exposed SSH endpoints are subjected to automated brute-force attacks and credential stuffing within minutes of deployment.",
-            impact="Unauthorized remote shell access to EC2 compute instances.",
+            description="AWS EC2 security groups and AuthorizeSecurityGroupIngress rules should not allow unrestricted internet access (0.0.0.0/0) to TCP Port 22 or management ports.",
+            rationale="Publicly exposed SSH endpoints in EC2 security groups are subjected to automated brute-force attacks and credential stuffing within minutes of deployment.",
+            impact="Unauthorized remote shell access to EC2 compute instances and lateral cloud movement.",
             remediation_command="aws ec2 revoke-security-group-ingress --group-id {RESOURCE_ID} --protocol tcp --port 22 --cidr 0.0.0.0/0",
             rollback_command="aws ec2 authorize-security-group-ingress --group-id {RESOURCE_ID} --protocol tcp --port 22 --cidr 0.0.0.0/0",
             iac_template="""resource "aws_security_group_rule" "remove_public_ssh" {
