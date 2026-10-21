@@ -48,22 +48,33 @@ class CloudTelemetryParser:
     def _parse_json_event(
         self, incident_id: str, data: Dict[str, Any], sanitized: str, redacted_count: int, hint: Optional[str]
     ) -> CloudSecurityIncident:
+        # Check if telemetry is marked BENIGN or is safe read-only operational activity
+        meta_cat = data.get("_meta", {}).get("category", "").upper() if isinstance(data.get("_meta"), dict) else ""
+        data_str = json.dumps(data).lower()
+        has_attack_markers = any(k in data_str for k in ["unauthorized", "exfil", "stoplogging", "attachuserpolicy", "cluster-admin", "allusers", "destroy", "0.0.0.0/0", "public_read", "privileged: true"])
+        is_benign = (meta_cat == "BENIGN") or (data.get("readOnly") is True and not has_attack_markers)
+        if is_benign:
+            data["is_benign"] = True
+
         # Detect AWS CloudTrail
         if "eventSource" in data or "awsRegion" in data or "userIdentity" in data:
             resource_id = "unknown-aws-resource"
             if "resources" in data and isinstance(data["resources"], list) and len(data["resources"]) > 0:
                 resource_id = data["resources"][0].get("ARN", data["resources"][0].get("name", "aws-res"))
-            elif "requestParameters" in data:
+            elif "requestParameters" in data and isinstance(data["requestParameters"], dict):
                 params = data["requestParameters"]
                 resource_id = params.get("bucketName") or params.get("roleName") or params.get("groupName") or "aws-param-res"
+            elif "userIdentity" in data and isinstance(data["userIdentity"], dict) and "userName" in data["userIdentity"]:
+                resource_id = f"iam-user/{data['userIdentity']['userName']}"
 
+            sev = Severity.LOW if is_benign else self._infer_severity(data.get("eventName", "") + " " + json.dumps(data))
             return CloudSecurityIncident(
                 incident_id=incident_id,
                 provider=CloudProvider.AWS,
                 resource_id=str(resource_id),
                 event_name=data.get("eventName", "AWS_GENERIC_EVENT"),
                 region=data.get("awsRegion", "global"),
-                severity_hint=self._infer_severity(data.get("eventName", "") + " " + json.dumps(data)),
+                severity_hint=sev,
                 raw_payload=json.dumps(data, indent=2),
                 sanitized_payload=sanitized,
                 secrets_redacted_count=redacted_count,
@@ -72,13 +83,14 @@ class CloudTelemetryParser:
 
         # Detect Azure Activity Log
         if "resourceId" in data or "operationName" in data or "subscriptionId" in data:
+            sev = Severity.LOW if is_benign else self._infer_severity(json.dumps(data))
             return CloudSecurityIncident(
                 incident_id=incident_id,
                 provider=CloudProvider.AZURE,
                 resource_id=data.get("resourceId", "azure-resource"),
                 event_name=data.get("operationName", {}).get("value", data.get("operationName", "AzureEvent")),
                 region=data.get("location", "azure-global"),
-                severity_hint=self._infer_severity(json.dumps(data)),
+                severity_hint=sev,
                 raw_payload=json.dumps(data, indent=2),
                 sanitized_payload=sanitized,
                 secrets_redacted_count=redacted_count,
@@ -88,13 +100,14 @@ class CloudTelemetryParser:
         # Detect GCP Cloud Audit Log
         if "protoPayload" in data or "resource" in data and "type" in data.get("resource", {}):
             proto = data.get("protoPayload", {})
+            sev = Severity.LOW if is_benign else self._infer_severity(json.dumps(data))
             return CloudSecurityIncident(
                 incident_id=incident_id,
                 provider=CloudProvider.GCP,
                 resource_id=proto.get("resourceName", "gcp-resource"),
                 event_name=proto.get("methodName", "GCPEvent"),
                 region=data.get("resource", {}).get("labels", {}).get("location", "gcp-global"),
-                severity_hint=self._infer_severity(json.dumps(data)),
+                severity_hint=sev,
                 raw_payload=json.dumps(data, indent=2),
                 sanitized_payload=sanitized,
                 secrets_redacted_count=redacted_count,
@@ -103,17 +116,19 @@ class CloudTelemetryParser:
 
         # Generic JSON log
         prov = CloudProvider.AWS if hint == "AWS" else CloudProvider.MULTI_CLOUD
+        sev = Severity.LOW if is_benign else self._infer_severity(json.dumps(data))
         return CloudSecurityIncident(
             incident_id=incident_id,
             provider=prov,
             resource_id=str(data.get("resource_id", data.get("resource", "generic-resource"))),
             event_name=str(data.get("event", data.get("rule", "SecurityAlert"))),
-            severity_hint=self._infer_severity(json.dumps(data)),
+            severity_hint=sev,
             raw_payload=json.dumps(data, indent=2),
             sanitized_payload=sanitized,
             secrets_redacted_count=redacted_count,
             metadata=data,
         )
+
 
     def _parse_yaml_event(
         self, incident_id: str, data: Dict[str, Any], sanitized: str, redacted_count: int

@@ -123,3 +123,5 @@ class GroundedAnalysisV2(GroundedAnalysis):
     sustainable_tier_used: SustainableTier = SustainableTier.TIER_0_CACHE
     tokens_consumed: int = 0
     processing_latency_ms: float = 0.0
+    topology_nodes: List[Dict[str, Any]] = Field(default_factory=list)
+    topology_edges: List[Dict[str, Any]] = Field(default_factory=list)
