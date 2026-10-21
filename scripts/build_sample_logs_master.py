@@ -1,0 +1,569 @@
+#!/usr/bin/env python3
+"""Build master sample_logs.json dataset for CloudSec-RAG v2.0.
+
+Single authoritative file containing:
+- AWS: CloudTrail, GuardDuty, Security Hub, VPC Flow
+- Azure: Activity Logs, Defender
+- GCP: Cloud Audit Logs, SCC
+- Kubernetes: Audit Logs, Admission Controller Events
+Spanning BENIGN, LOW, MEDIUM, HIGH, and CRITICAL severities.
+"""
+
+import json
+from pathlib import Path
+
+DATA_DIR = Path(__file__).resolve().parent.parent / "data"
+DATA_DIR.mkdir(parents=True, exist_ok=True)
+OUTPUT_FILE = DATA_DIR / "sample_logs.json"
+
+scenarios = [
+    # =========================================================================
+    # 1. AWS CLOUDTRAIL (BENIGN, HIGH, CRITICAL)
+    # =========================================================================
+    {
+        "id": "AWS-CT-BENIGN-01",
+        "name": "AWS CloudTrail: Read-Only Identity Call",
+        "provider": "AWS",
+        "source": "CloudTrail",
+        "severity": "BENIGN",
+        "description": "Routine GetAccountSummary API call from internal IAM user console session.",
+        "payload": {
+            "_meta": {"id": "AWS-CT-BENIGN-01", "category": "BENIGN", "service": "AWS IAM"},
+            "eventVersion": "1.08",
+            "userIdentity": {
+                "type": "IAMUser",
+                "principalId": "AIDAJQABLZS5A3YEXAMPLE",
+                "arn": "arn:aws:iam::112233445566:user/sec-auditor",
+                "accountId": "112233445566",
+                "userName": "sec-auditor"
+            },
+            "eventTime": "2026-10-21T08:00:00Z",
+            "eventSource": "iam.amazonaws.com",
+            "eventName": "GetAccountSummary",
+            "awsRegion": "us-east-1",
+            "sourceIPAddress": "10.0.1.15",
+            "userAgent": "console.amazonaws.com",
+            "responseElements": None,
+            "readOnly": True
+        },
+        "expected_verdict": {
+            "status": "BENIGN",
+            "severity": "LOW",
+            "is_vulnerable": False,
+            "suppress_patch": True
+        }
+    },
+    {
+        "id": "AWS-CT-HIGH-01",
+        "name": "AWS CloudTrail: S3 Public Bucket Policy Exposure",
+        "provider": "AWS",
+        "source": "CloudTrail",
+        "severity": "HIGH",
+        "description": "Bucket policy updated granting unauthenticated Principal * read/write permissions.",
+        "payload": {
+            "_meta": {"id": "AWS-CT-HIGH-01", "category": "VULNERABLE", "service": "AWS S3"},
+            "eventVersion": "1.08",
+            "userIdentity": {
+                "type": "IAMUser",
+                "arn": "arn:aws:iam::112233445566:user/devops-lead",
+                "userName": "devops-lead"
+            },
+            "eventTime": "2026-10-21T08:05:00Z",
+            "eventSource": "s3.amazonaws.com",
+            "eventName": "PutBucketPolicy",
+            "awsRegion": "us-east-1",
+            "sourceIPAddress": "198.51.100.23",
+            "requestParameters": {
+                "bucketName": "corp-customer-records-prod",
+                "bucketPolicy": {
+                    "Version": "2012-10-17",
+                    "Statement": [{
+                        "Sid": "PublicAccessForTesting",
+                        "Effect": "Allow",
+                        "Principal": "*",
+                        "Action": ["s3:GetObject", "s3:PutObject"],
+                        "Resource": "arn:aws:s3:::corp-customer-records-prod/*"
+                    }]
+                }
+            },
+            "readOnly": False
+        },
+        "expected_verdict": {
+            "status": "VULNERABLE",
+            "severity": "HIGH",
+            "benchmark": "CIS-AWS-2.1.5",
+            "is_vulnerable": True,
+            "patch_type": "AWS_CLI"
+        }
+    },
+    {
+        "id": "AWS-CT-CRIT-01",
+        "name": "AWS CloudTrail: Defense Evasion Trail Disabled",
+        "provider": "AWS",
+        "source": "CloudTrail",
+        "severity": "CRITICAL",
+        "description": "Compromised credential calling StopLogging from foreign Tor IP to blind SOC.",
+        "payload": {
+            "_meta": {"id": "AWS-CT-CRIT-01", "category": "DANGEROUS", "service": "AWS CloudTrail"},
+            "eventVersion": "1.08",
+            "userIdentity": {
+                "type": "IAMUser",
+                "arn": "arn:aws:iam::112233445566:user/compromised-admin",
+                "userName": "compromised-admin"
+            },
+            "eventTime": "2026-10-21T08:10:00Z",
+            "eventSource": "cloudtrail.amazonaws.com",
+            "eventName": "StopLogging",
+            "awsRegion": "us-east-1",
+            "sourceIPAddress": "185.220.101.5",
+            "requestParameters": {
+                "name": "arn:aws:cloudtrail:us-east-1:112233445566:trail/main-audit-trail"
+            },
+            "readOnly": False
+        },
+        "expected_verdict": {
+            "status": "CRITICAL",
+            "severity": "CRITICAL",
+            "mitre": "T1562.001",
+            "is_vulnerable": True
+        }
+    },
+
+    # =========================================================================
+    # 2. AWS GUARDDUTY (LOW, CRITICAL)
+    # =========================================================================
+    {
+        "id": "AWS-GD-LOW-01",
+        "name": "AWS GuardDuty: Unusual API Call Volume (Port Scan)",
+        "provider": "AWS",
+        "source": "GuardDuty",
+        "severity": "LOW",
+        "description": "Internal vulnerability scanner generating unusual API query pattern.",
+        "payload": {
+            "schemaVersion": "2.0",
+            "accountId": "112233445566",
+            "region": "us-east-1",
+            "type": "Recon:IAMUser/NetworkPortUnusual",
+            "severity": 2.5,
+            "title": "Unusual network port probed by internal security scanner",
+            "description": "Internal scanner probing internal ports during scheduled scan window.",
+            "resource": {
+                "resourceType": "Instance",
+                "instanceDetails": {"instanceId": "i-scanner001"}
+            }
+        },
+        "expected_verdict": {
+            "status": "LOW",
+            "severity": "LOW",
+            "is_vulnerable": False
+        }
+    },
+    {
+        "id": "AWS-GD-CRIT-01",
+        "name": "AWS GuardDuty: Instance Credential Exfiltration Outside AWS",
+        "provider": "AWS",
+        "source": "GuardDuty",
+        "severity": "CRITICAL",
+        "description": "Stolen EC2 instance profile STS session token invoked from foreign residential IP.",
+        "payload": {
+            "_meta": {"id": "AWS-GD-CRIT-01", "category": "DANGEROUS"},
+            "schemaVersion": "2.0",
+            "accountId": "112233445566",
+            "region": "us-east-1",
+            "type": "UnauthorizedAccess:IAMUser/InstanceCredentialExfiltration.OutsideAWS",
+            "severity": 8.8,
+            "title": "Credentials for EC2 role 'prod-billing-worker' exfiltrated and invoked outside AWS",
+            "description": "Instance role credentials exfiltrated via SSRF and called from external IP 194.26.29.112.",
+            "resource": {
+                "resourceType": "AccessKey",
+                "accessKeyDetails": {
+                    "accessKeyId": "ASIAEXAMPLEEXFILTOKEN",
+                    "userName": "prod-billing-worker",
+                    "userType": "AssumedRole"
+                }
+            }
+        },
+        "expected_verdict": {
+            "status": "CRITICAL",
+            "severity": "CRITICAL",
+            "is_vulnerable": True
+        }
+    },
+
+    # =========================================================================
+    # 3. AWS SECURITY HUB (MEDIUM, HIGH)
+    # =========================================================================
+    {
+        "id": "AWS-SH-MED-01",
+        "name": "AWS Security Hub: Active Root Access Key Violation",
+        "provider": "AWS",
+        "source": "SecurityHub",
+        "severity": "MEDIUM",
+        "description": "Root user account has active programmatic API access keys.",
+        "payload": {
+            "SchemaVersion": "2018-10-08",
+            "Id": "arn:aws:securityhub:us-east-1:112233445566:subscription/cis-aws-foundations-benchmark/v/1.4.0/1.4/finding/91a82f",
+            "ProductArn": "arn:aws:securityhub:us-east-1::product/aws/securityhub",
+            "GeneratorId": "cis-aws-foundations-benchmark/v/1.4.0/1.4",
+            "AwsAccountId": "112233445566",
+            "Types": ["Software and Configuration Checks/Industry and Regulatory Standards/CIS AWS Foundations Benchmark"],
+            "Severity": {"Label": "MEDIUM"},
+            "Title": "1.4 Ensure no root user account access key exists",
+            "Description": "AWS root user access keys provide unrestricted administrative access across the account.",
+            "Resources": [{"Type": "AwsIamUser", "Id": "arn:aws:iam::112233445566:root"}]
+        },
+        "expected_verdict": {
+            "status": "VULNERABLE",
+            "severity": "MEDIUM",
+            "benchmark": "CIS-AWS-1.4"
+        }
+    },
+    {
+        "id": "AWS-SH-HIGH-01",
+        "name": "AWS Security Hub: S3 Bucket Prohibits Public Read (ASFF)",
+        "provider": "AWS",
+        "source": "SecurityHub",
+        "severity": "HIGH",
+        "description": "ASFF finding indicating S3 bucket public access block configuration disabled.",
+        "payload": {
+            "SchemaVersion": "2018-10-08",
+            "Id": "arn:aws:securityhub:us-east-1:112233445566:finding/s3-public-block-disabled",
+            "ProductArn": "arn:aws:securityhub:us-east-1::product/aws/securityhub",
+            "AwsAccountId": "112233445566",
+            "Types": ["Software and Configuration Checks/AWS Security Best Practices"],
+            "Severity": {"Label": "HIGH"},
+            "Title": "S3.2 S3 buckets should prohibit public read access",
+            "Description": "Checks whether S3 buckets have public read access prohibited via S3 Block Public Access.",
+            "Resources": [{"Type": "AwsS3Bucket", "Id": "arn:aws:s3:::analytics-lake-prod"}]
+        },
+        "expected_verdict": {
+            "status": "VULNERABLE",
+            "severity": "HIGH",
+            "benchmark": "CIS-AWS-2.1.5"
+        }
+    },
+
+    # =========================================================================
+    # 4. AWS VPC FLOW LOGS (BENIGN, HIGH)
+    # =========================================================================
+    {
+        "id": "AWS-VPC-BENIGN-01",
+        "name": "AWS VPC Flow: Legitimate Inbound HTTPS Traffic",
+        "provider": "AWS",
+        "source": "VPC_Flow",
+        "severity": "BENIGN",
+        "description": "Standard encrypted web traffic accepted on TCP port 443.",
+        "payload": {
+            "_meta": {"id": "AWS-VPC-BENIGN-01", "category": "BENIGN", "service": "VPC Flow"},
+            "version": 2,
+            "accountId": "112233445566",
+            "interfaceId": "eni-0a81b94c220",
+            "srcAddr": "203.0.113.195",
+            "dstAddr": "10.0.1.10",
+            "srcPort": 52410,
+            "dstPort": 443,
+            "protocol": 6,
+            "packets": 14,
+            "bytes": 2180,
+            "start": 1792548800,
+            "end": 1792548860,
+            "action": "ACCEPT",
+            "logStatus": "OK"
+        },
+        "expected_verdict": {
+            "status": "BENIGN",
+            "severity": "LOW",
+            "is_vulnerable": False
+        }
+    },
+    {
+        "id": "AWS-VPC-HIGH-01",
+        "name": "AWS VPC Flow: Repeated SSH Brute Force Ingress",
+        "provider": "AWS",
+        "source": "VPC_Flow",
+        "severity": "HIGH",
+        "description": "Rapid burst of inbound connection attempts to TCP port 22 from scanner IP.",
+        "payload": {
+            "version": 2,
+            "accountId": "112233445566",
+            "interfaceId": "eni-0bastion99a",
+            "srcAddr": "185.191.171.12",
+            "dstAddr": "10.0.0.5",
+            "srcPort": 41200,
+            "dstPort": 22,
+            "protocol": 6,
+            "packets": 2400,
+            "bytes": 144000,
+            "action": "ACCEPT",
+            "logStatus": "OK"
+        },
+        "expected_verdict": {
+            "status": "VULNERABLE",
+            "severity": "HIGH",
+            "benchmark": "CIS-AWS-5.2"
+        }
+    },
+
+    # =========================================================================
+    # 5. AZURE ACTIVITY LOGS & DEFENDER (BENIGN, MEDIUM, CRITICAL)
+    # =========================================================================
+    {
+        "id": "AZURE-ACT-BENIGN-01",
+        "name": "Azure Activity: Automated Workload VM Restart",
+        "provider": "AZURE",
+        "source": "Activity_Log",
+        "severity": "BENIGN",
+        "description": "Routine scheduled virtual machine restart executed by cloud autoscaler.",
+        "payload": {
+            "_meta": {"id": "AZURE-ACT-BENIGN-01", "category": "BENIGN"},
+            "time": "2026-10-21T08:20:00Z",
+            "resourceId": "/subscriptions/sub-8491-prod/resourceGroups/rg-web/providers/Microsoft.Compute/virtualMachines/vm-frontend-01",
+            "operationName": "Microsoft.Compute/virtualMachines/restart/action",
+            "category": "Administrative",
+            "resultType": "Success",
+            "caller": "autoscaler-system@enterprise.onmicrosoft.com"
+        },
+        "expected_verdict": {
+            "status": "BENIGN",
+            "severity": "LOW",
+            "is_vulnerable": False
+        }
+    },
+    {
+        "id": "AZURE-DEF-MED-01",
+        "name": "Microsoft Defender: Missing Database Vulnerability Assessment",
+        "provider": "AZURE",
+        "source": "Defender",
+        "severity": "MEDIUM",
+        "description": "Azure SQL server lacks automated vulnerability assessment configuration.",
+        "payload": {
+            "severity": "Medium",
+            "status": "Active",
+            "alertType": "SQL_VulnerabilityAssessmentMissing",
+            "alertDisplayName": "Vulnerability assessment should be enabled on SQL servers",
+            "resourceId": "/subscriptions/sub-8491-prod/resourceGroups/rg-data/providers/Microsoft.Sql/servers/sql-corp-db",
+            "remediationSteps": ["Navigate to SQL Server Defender settings and enable periodic assessment scans."]
+        },
+        "expected_verdict": {
+            "status": "VULNERABLE",
+            "severity": "MEDIUM",
+            "benchmark": "CIS-Azure-4.1"
+        }
+    },
+    {
+        "id": "AZURE-ACT-CRIT-01",
+        "name": "Azure Activity: Inbound NSG Rule Exposing RDP 3389 Globally",
+        "provider": "AZURE",
+        "source": "Activity_Log",
+        "severity": "CRITICAL",
+        "description": "Security rule written permitting internet inbound TCP port 3389 without restriction.",
+        "payload": {
+            "time": "2026-10-21T08:25:00Z",
+            "resourceId": "/subscriptions/sub-8491-prod/resourceGroups/rg-core/providers/Microsoft.Network/networkSecurityGroups/nsg-backend/securityRules/AllowAllRDP",
+            "operationName": "Microsoft.Network/networkSecurityGroups/securityRules/write",
+            "category": "Administrative",
+            "resultType": "Success",
+            "caller": "contractor@external.com",
+            "properties": {
+                "requestbody": {
+                    "properties": {
+                        "protocol": "Tcp",
+                        "sourceAddressPrefix": "*",
+                        "destinationAddressPrefix": "*",
+                        "access": "Allow",
+                        "destinationPortRange": "3389",
+                        "direction": "Inbound",
+                        "priority": 100
+                    }
+                }
+            }
+        },
+        "expected_verdict": {
+            "status": "VULNERABLE",
+            "severity": "CRITICAL",
+            "benchmark": "CIS-Azure-6.2",
+            "is_vulnerable": True
+        }
+    },
+
+    # =========================================================================
+    # 6. GCP CLOUD AUDIT & SCC (BENIGN, HIGH, CRITICAL)
+    # =========================================================================
+    {
+        "id": "GCP-AUDIT-BENIGN-01",
+        "name": "GCP Cloud Audit: Compute Instance Status Check",
+        "provider": "GCP",
+        "source": "Cloud_Audit",
+        "severity": "BENIGN",
+        "description": "Read-only GET call on compute instance from internal monitoring agent.",
+        "payload": {
+            "_meta": {"id": "GCP-AUDIT-BENIGN-01", "category": "BENIGN"},
+            "protoPayload": {
+                "serviceName": "compute.googleapis.com",
+                "methodName": "v1.compute.instances.get",
+                "resourceName": "projects/proj-prod-9921/zones/us-central1-a/instances/api-node-01",
+                "authenticationInfo": {"principalEmail": "monitoring@proj-prod-9921.iam.gserviceaccount.com"}
+            },
+            "timestamp": "2026-10-21T08:30:00Z",
+            "severity": "INFO"
+        },
+        "expected_verdict": {
+            "status": "BENIGN",
+            "severity": "LOW",
+            "is_vulnerable": False
+        }
+    },
+    {
+        "id": "GCP-SCC-HIGH-01",
+        "name": "GCP SCC: Storage Bucket Public IAM Binding (allUsers)",
+        "provider": "GCP",
+        "source": "SCC",
+        "severity": "HIGH",
+        "description": "SCC alert flagging Cloud Storage bucket binding granted to allUsers.",
+        "payload": {
+            "finding": {
+                "name": "projects/109281/sources/2019/findings/scc-public-bucket-001",
+                "parent": "organizations/109281/sources/2019",
+                "resourceName": "//storage.googleapis.com/gcp-corp-vault-backups",
+                "state": "ACTIVE",
+                "category": "PUBLIC_BUCKET_ACL",
+                "severity": "HIGH",
+                "sourceProperties": {
+                    "members": ["allUsers"],
+                    "role": "roles/storage.objectViewer"
+                }
+            }
+        },
+        "expected_verdict": {
+            "status": "VULNERABLE",
+            "severity": "HIGH",
+            "benchmark": "CIS-GCP-5.1"
+        }
+    },
+    {
+        "id": "GCP-AUDIT-CRIT-01",
+        "name": "GCP Cloud Audit: Master Cloud KMS CryptoKey Destruction",
+        "provider": "GCP",
+        "source": "Cloud_Audit",
+        "severity": "CRITICAL",
+        "description": "Ransomware staging action destroying master database encryption key version.",
+        "payload": {
+            "_meta": {"id": "GCP-AUDIT-CRIT-01", "category": "DANGEROUS"},
+            "protoPayload": {
+                "serviceName": "cloudkms.googleapis.com",
+                "methodName": "google.cloud.kms.v1.KeyManagementService.DestroyCryptoKeyVersion",
+                "resourceName": "projects/proj-prod-9921/locations/global/keyRings/db-ring/cryptoKeys/master-enc-key/cryptoKeyVersions/1",
+                "authenticationInfo": {"principalEmail": "compromised-sa@proj-prod-9921.iam.gserviceaccount.com"}
+            },
+            "timestamp": "2026-10-21T08:35:00Z",
+            "severity": "CRITICAL"
+        },
+        "expected_verdict": {
+            "status": "CRITICAL",
+            "severity": "CRITICAL",
+            "mitre": "T1485",
+            "is_vulnerable": True
+        }
+    },
+
+    # =========================================================================
+    # 7. KUBERNETES AUDIT & ADMISSION EVENTS (BENIGN, HIGH, CRITICAL)
+    # =========================================================================
+    {
+        "id": "K8S-AUDIT-BENIGN-01",
+        "name": "Kubernetes Audit: Scheduler Routine Pod Status Query",
+        "provider": "KUBERNETES",
+        "source": "K8s_Audit",
+        "severity": "BENIGN",
+        "description": "Standard system:kube-scheduler GET query on system pods.",
+        "payload": {
+            "_meta": {"id": "K8S-AUDIT-BENIGN-01", "category": "BENIGN"},
+            "kind": "Event",
+            "apiVersion": "audit.k8s.io/v1",
+            "level": "Metadata",
+            "stage": "ResponseComplete",
+            "requestURI": "/api/v1/namespaces/kube-system/pods/coredns-77",
+            "verb": "get",
+            "user": {"username": "system:kube-scheduler"},
+            "responseStatus": {"code": 200},
+            "stageTimestamp": "2026-10-21T08:40:00Z"
+        },
+        "expected_verdict": {
+            "status": "BENIGN",
+            "severity": "LOW",
+            "is_vulnerable": False
+        }
+    },
+    {
+        "id": "K8S-ADM-HIGH-01",
+        "name": "Kubernetes Admission: Privileged Container Request with HostPID",
+        "provider": "KUBERNETES",
+        "source": "Admission_Review",
+        "severity": "HIGH",
+        "description": "Pod admission review requesting root securityContext.privileged: true and hostPID: true.",
+        "payload": {
+            "apiVersion": "admission.k8s.io/v1",
+            "kind": "AdmissionReview",
+            "request": {
+                "uid": "705ab4f5-6393-11e8-b7cc-42010a800002",
+                "kind": {"group": "", "version": "v1", "kind": "Pod"},
+                "resource": {"group": "", "version": "v1", "resource": "pods"},
+                "namespace": "production",
+                "operation": "CREATE",
+                "userInfo": {"username": "contractor-runner"},
+                "object": {
+                    "spec": {
+                        "hostPID": True,
+                        "containers": [{
+                            "name": "debug-shell",
+                            "image": "alpine:latest",
+                            "securityContext": {"privileged": True}
+                        }]
+                    }
+                }
+            }
+        },
+        "expected_verdict": {
+            "status": "VULNERABLE",
+            "severity": "HIGH",
+            "benchmark": "CIS-K8s-5.2.1",
+            "is_vulnerable": True
+        }
+    },
+    {
+        "id": "K8S-AUDIT-CRIT-01",
+        "name": "Kubernetes Audit: Anonymous cluster-admin Privilege Escalation",
+        "provider": "KUBERNETES",
+        "source": "K8s_Audit",
+        "severity": "CRITICAL",
+        "description": "Unauthenticated attacker binding system:unauthenticated to cluster-admin ClusterRole.",
+        "payload": {
+            "_meta": {"id": "K8S-AUDIT-CRIT-01", "category": "DANGEROUS"},
+            "kind": "Event",
+            "apiVersion": "audit.k8s.io/v1",
+            "requestURI": "/apis/rbac.authorization.k8s.io/v1/clusterrolebindings",
+            "verb": "create",
+            "user": {"username": "system:anonymous", "groups": ["system:unauthenticated"]},
+            "requestObject": {
+                "metadata": {"name": "backdoor-admin"},
+                "roleRef": {"kind": "ClusterRole", "name": "cluster-admin"},
+                "subjects": [{"kind": "Group", "name": "system:unauthenticated"}]
+            },
+            "stageTimestamp": "2026-10-21T08:45:00Z"
+        },
+        "expected_verdict": {
+            "status": "CRITICAL",
+            "severity": "CRITICAL",
+            "mitre": "T1078.004",
+            "is_vulnerable": True
+        }
+    }
+]
+
+with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
+    json.dump({"schemaVersion": "2.0", "totalScenarios": len(scenarios), "scenarios": scenarios}, f, indent=2)
+
+print(f"[+] Master sample_logs.json successfully created at {OUTPUT_FILE}!")
+print(f"    - Total Scenarios: {len(scenarios)}")
+print(f"    - Providers Covered: AWS, Azure, GCP, Kubernetes")
+print(f"    - Severities Covered: BENIGN, LOW, MEDIUM, HIGH, CRITICAL")

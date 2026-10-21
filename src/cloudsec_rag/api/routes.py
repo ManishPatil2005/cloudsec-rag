@@ -165,3 +165,16 @@ def get_incident_detail(incident_id: str):
 def list_authoritative_benchmarks():
     """List all indexed CIS and NIST benchmarks available for grounding."""
     return get_default_benchmarks()
+
+
+@router.get("/v1/sample-logs")
+def get_sample_logs_catalog():
+    """Retrieve master catalog of multi-cloud telemetry scenarios from sample_logs.json."""
+    import json
+    from pathlib import Path
+    sample_file = Path(__file__).resolve().parent.parent.parent.parent / "data" / "sample_logs.json"
+    if sample_file.exists():
+        with open(sample_file, "r", encoding="utf-8") as f:
+            return json.load(f)
+    return {"scenarios": []}
+
