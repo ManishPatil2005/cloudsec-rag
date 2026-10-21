@@ -46,3 +46,22 @@ def test_copilot_problem_reporting(copilot):
     assert "Rule-6: Problem-Reporting-Protocol" in resp.rules_enforced
     assert "PRB-INC-EC2-TEST" in resp.reply
     assert "Reachability Check" in resp.reply
+
+
+def test_copilot_greeting(copilot):
+    """Natural greeting returns friendly project introduction."""
+    req = CopilotMessageRequest(message="hello")
+    resp = copilot.handle_message(req)
+    assert resp.status == "SUCCESS"
+    assert "Rule-3: Grounded-Conversational-Greeting" in resp.rules_enforced
+    assert "CloudSec-RAG Security Copilot" in resp.reply
+    assert "Mode 1: Sample Simulation" in resp.reply
+
+
+def test_copilot_project_inquiry(copilot):
+    """Explains project architecture and capabilities."""
+    req = CopilotMessageRequest(message="what is this project?")
+    resp = copilot.handle_message(req)
+    assert resp.status == "SUCCESS"
+    assert "Rule-3: Architecture-Grounding-Enforced" in resp.rules_enforced
+    assert "Topological Reachability Proof" in resp.reply

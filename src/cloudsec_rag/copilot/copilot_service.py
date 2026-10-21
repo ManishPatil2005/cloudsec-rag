@@ -11,6 +11,7 @@ Enforces Security Rules from docs/SECURITY_RULES.md:
 
 import json
 import logging
+import re
 from typing import Any, Dict, List, Optional
 from ..core.types import CopilotMessageRequest, CopilotMessageResponse
 from ..guardrails.injection_detector import InjectionDetector
@@ -71,15 +72,73 @@ class CopilotSecurityService:
         # =========================================================================
         # 3. Intent Detection & Grounded Response Synthesis
         # =========================================================================
-        lower_msg = sanitized_msg.lower()
+        lower_msg = sanitized_msg.lower().strip()
+        cleaned_words = set(re.findall(r"\b\w+\b", lower_msg))
+
+        # Default action suggestions
         suggested_actions = [
-            "How do I run a sample simulation?",
+            "How do I run Mode 1 (Simulation)?",
             "Explain reachability verification",
-            "How do I apply the Terraform AST patch?",
+            "How to apply the Terraform patch",
             "Report a false positive / problem",
         ]
 
-        # Case A: Execution Help
+        # -------------------------------------------------------------------------
+        # Case A: Friendly Conversational Greetings & Introductions
+        # -------------------------------------------------------------------------
+        greeting_words = {"hi", "hello", "hey", "hola", "greetings", "morning", "afternoon", "evening", "sup", "yo"}
+        intro_phrases = ["who are you", "what can you do", "what are you", "help me", "introduce yourself", "how are you"]
+        
+        if cleaned_words.intersection(greeting_words) or any(p in lower_msg for p in intro_phrases):
+            rules_enforced.append("Rule-3: Grounded-Conversational-Greeting")
+            rules_enforced.append("Rule-7: Memory-Hygiene-Enforced")
+            reply = (
+                "👋 **Hello! I am your CloudSec-RAG Security Copilot.**\n\n"
+                "I am your paired assistant for cloud telemetry analysis, execution guidance, and security triage, "
+                "operating under verified **Enterprise Security Rules**.\n\n"
+                "Here is how I can help you right now:\n"
+                "- 🚀 **Execution Guidance:** Walk through running **Mode 1: Sample Simulation** or **Mode 2: Manual Log Analysis**.\n"
+                "- 🔍 **Alert & Graph Triage:** Explain why an alert was flagged, how reachability was verified, or how blast radius was bounded.\n"
+                "- 🛠️ **AST Remediation & Rollbacks:** Guide you through syntax-safe Terraform HCL patches and inverse rollback plans.\n"
+                "- 📋 **Problem & Bug Reporting:** Log false positives, diagnostic traces, and triage notes into persistent SQLite memory.\n\n"
+                "What would you like to explore or execute?"
+            )
+            return CopilotMessageResponse(
+                reply=reply,
+                rules_enforced=rules_enforced,
+                suggested_actions=[
+                    "How do I run Mode 1?",
+                    "What is this project?",
+                    "Explain reachability graph",
+                    "Report a problem / bug"
+                ],
+            )
+
+        # -------------------------------------------------------------------------
+        # Case B: Project Overview & Architecture Inquiries
+        # -------------------------------------------------------------------------
+        if any(w in lower_msg for w in ["what is this project", "what is cloudsec", "project overview", "architecture", "what does this do", "how does it work", "graph rag", "why use this"]):
+            rules_enforced.append("Rule-3: Architecture-Grounding-Enforced")
+            rules_enforced.append("Rule-4: Safe-Execution-Boundary")
+            reply = (
+                "### 🛡️ About CloudSec-RAG v2.0\n\n"
+                "**CloudSec-RAG** is an autonomous multi-cloud security platform designed to eliminate false-positive alert fatigue "
+                "and generate mathematically verified remediations.\n\n"
+                "**Key Pillars of the Architecture:**\n"
+                "1. **Multi-Cloud Ingestion:** Normalizes telemetry across AWS (CloudTrail, GuardDuty, VPC Flow), Azure (Activity, Defender), GCP (Audit, SCC), and Kubernetes manifests.\n"
+                "2. **Topological Reachability Proof:** Uses bidirectional BFS to traverse route tables, security groups, and IAM permission edges to prove if an external actor can actually reach the asset.\n"
+                "3. **Grounded Graph-RAG:** Embeds authoritative CIS Benchmarks and MITRE ATT&CK techniques with dense vector retrieval + BM25, eliminating LLM hallucinations.\n"
+                "4. **AST-Level Remediation:** Synthesizes syntax-guaranteed Terraform HCL patches with blast-radius constraints and 1-click inverse rollback plans."
+            )
+            return CopilotMessageResponse(
+                reply=reply,
+                rules_enforced=rules_enforced,
+                suggested_actions=["How do I run a simulation?", "Explain blast radius metric", "Show me a healthy log example"],
+            )
+
+        # -------------------------------------------------------------------------
+        # Case C: Execution Help & How-To Guides
+        # -------------------------------------------------------------------------
         if any(w in lower_msg for w in ["how to run", "how do i run", "execute", "terminal", "command", "mode 1", "mode 2", "start server", "step"]):
             rules_enforced.append("Rule-3: Grounded-Execution-Guidance")
             rules_enforced.append("Rule-4: Safe-Execution-Boundary")
@@ -95,7 +154,7 @@ class CopilotSecurityService:
                 "```powershell\n"
                 "# Start Dashboard on port 8088\n"
                 "python main.py serve --port 8088\n\n"
-                "# Run full verification test suite (28/28 tests)\n"
+                "# Run full verification test suite (32/32 tests)\n"
                 "python -m pytest tests/\n"
                 "```\n\n"
                 "*Enforced Rules: Commands above are bounded; arbitrary host code execution is restricted under Rule 4.*"
@@ -106,8 +165,10 @@ class CopilotSecurityService:
                 suggested_actions=["What is Reachability Verification?", "Show me a healthy log example", "How to apply HCL patch"],
             )
 
-        # Case B: Problem Report / Bug / False Positive
-        if any(w in lower_msg for w in ["problem", "bug", "report", "false positive", "error", "issue", "wrong", "fail"]):
+        # -------------------------------------------------------------------------
+        # Case D: Problem Report / Bug / False Positive
+        # -------------------------------------------------------------------------
+        if any(w in lower_msg for w in ["problem", "bug", "report", "false positive", "error", "issue", "wrong", "fail", "broken"]):
             rules_enforced.append("Rule-6: Problem-Reporting-Protocol")
             inc_id = req.current_incident_id or "INC-ACTIVE"
             try:
@@ -139,8 +200,10 @@ class CopilotSecurityService:
                 incident_id=inc_id,
             )
 
-        # Case C: Contextual Alert or Topology Explanation
-        if any(w in lower_msg for w in ["reachability", "graph", "blast radius", "patch", "rollback", "mitre", "cis", "why"]):
+        # -------------------------------------------------------------------------
+        # Case E: Contextual Alert, Reachability, or Patch Explanation
+        # -------------------------------------------------------------------------
+        if any(w in lower_msg for w in ["reachability", "graph", "blast radius", "patch", "rollback", "mitre", "cis", "why", "severity", "score"]):
             rules_enforced.append("Rule-3: Grounding-Enforced")
             rules_enforced.append("Rule-5: Dual-Control-HITL-Enforced")
             reply = (
@@ -155,15 +218,17 @@ class CopilotSecurityService:
                 suggested_actions=["How do I run a sample simulation?", "How to apply the Terraform patch", "Report a false positive"],
             )
 
-        # Case D: General CloudSec / LLM query with live model grounding
+        # -------------------------------------------------------------------------
+        # Case F: General Inquiries (Grounded in CloudSec Scope)
+        # -------------------------------------------------------------------------
         rules_enforced.append("Rule-3: Grounding-Enforced")
         rules_enforced.append("Rule-7: Memory-Hygiene-Enforced")
         reply = (
-            f"**CloudSec AI Copilot Response:**\n\n"
-            f"I have reviewed your security inquiry: *\"{sanitized_msg}\"*\n\n"
-            "- **Compliance Baseline:** All security analysis in CloudSec-RAG is grounded in CIS Benchmarks (AWS v3.0, Azure v2.0, GCP v3.0, K8s v1.8) and MITRE ATT&CK Cloud Tactics.\n"
-            "- **Active Session:** Operating with anti-injection shield, zero-hallucination thresholds (>= 0.85), and sliding-window ephemeral memory.\n\n"
-            "How can I assist you with execution, alert triage, or problem reporting?"
+            f"**CloudSec AI Copilot:**\n\n"
+            f"I have reviewed your message: *\"{sanitized_msg}\"*\n\n"
+            "- **Scope & Governance:** Under **Rule 4 (Execution Boundaries)**, I specialize in multi-cloud telemetry (AWS, Azure, GCP, K8s), CIS compliance, and AST patch remediation.\n"
+            "- **Active Protections:** All responses are verified against prompt injection, stripped of PII, and grounded with confidence >= 0.85.\n\n"
+            "You can ask me to explain an alert, guide you through running a simulation, or report an incident issue."
         )
         return CopilotMessageResponse(
             reply=reply,
