@@ -3,6 +3,10 @@
 import os
 from pathlib import Path
 from pydantic import BaseModel, Field
+from dotenv import load_dotenv
+
+# Load .env file automatically
+load_dotenv()
 
 # Base Paths
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
@@ -18,7 +22,9 @@ class Settings(BaseModel):
     log_level: str = Field(default="INFO")
 
     # LLM Settings
-    default_llm_provider: str = Field(default="mock")  # 'mock', 'gemini', 'openai'
+    default_llm_provider: str = Field(
+        default_factory=lambda: os.getenv("DEFAULT_LLM_PROVIDER", "gemini" if os.getenv("GEMINI_API_KEY") else "mock")
+    )  # 'mock', 'gemini', 'openai'
     gemini_api_key: str = Field(default_factory=lambda: os.getenv("GEMINI_API_KEY", ""))
     openai_api_key: str = Field(default_factory=lambda: os.getenv("OPENAI_API_KEY", ""))
 
