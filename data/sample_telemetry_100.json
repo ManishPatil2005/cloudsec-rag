@@ -1,0 +1,2106 @@
+[
+  {
+    "_meta": {
+      "id": "BENIGN-001",
+      "category": "BENIGN",
+      "service": "AWS IAM"
+    },
+    "eventVersion": "1.08",
+    "userIdentity": {
+      "type": "IAMUser",
+      "userName": "analyst-user-1",
+      "accountId": "112233445566"
+    },
+    "eventTime": "2026-10-21T06:01:00Z",
+    "eventSource": "iam.amazonaws.com",
+    "eventName": "GetAccountSummary",
+    "awsRegion": "us-east-1",
+    "sourceIPAddress": "10.0.1.12",
+    "userAgent": "console.amazonaws.com",
+    "responseElements": null,
+    "readOnly": true
+  },
+  {
+    "_meta": {
+      "id": "BENIGN-002",
+      "category": "BENIGN",
+      "service": "AWS S3"
+    },
+    "eventVersion": "1.08",
+    "userIdentity": {
+      "type": "AssumedRole",
+      "arn": "arn:aws:iam::112233445566:role/app-backend",
+      "accountId": "112233445566"
+    },
+    "eventTime": "2026-10-21T06:02:00Z",
+    "eventSource": "s3.amazonaws.com",
+    "eventName": "GetObject",
+    "awsRegion": "us-east-1",
+    "sourceIPAddress": "172.31.2.4",
+    "requestParameters": {
+      "bucketName": "app-assets-production",
+      "key": "static/js/bundle-2.js"
+    },
+    "readOnly": true
+  },
+  {
+    "_meta": {
+      "id": "BENIGN-003",
+      "category": "BENIGN",
+      "service": "AWS STS"
+    },
+    "eventVersion": "1.08",
+    "userIdentity": {
+      "type": "IAMUser",
+      "userName": "ci-cd-bot",
+      "accountId": "112233445566"
+    },
+    "eventTime": "2026-10-21T06:03:00Z",
+    "eventSource": "sts.amazonaws.com",
+    "eventName": "GetCallerIdentity",
+    "awsRegion": "us-east-1",
+    "sourceIPAddress": "54.210.12.98",
+    "readOnly": true
+  },
+  {
+    "_meta": {
+      "id": "BENIGN-004",
+      "category": "BENIGN",
+      "service": "AWS DynamoDB"
+    },
+    "eventVersion": "1.08",
+    "userIdentity": {
+      "type": "AssumedRole",
+      "arn": "arn:aws:iam::112233445566:role/orders-microservice",
+      "accountId": "112233445566"
+    },
+    "eventTime": "2026-10-21T06:04:00Z",
+    "eventSource": "dynamodb.amazonaws.com",
+    "eventName": "GetItem",
+    "awsRegion": "us-east-1",
+    "sourceIPAddress": "10.100.4.5",
+    "requestParameters": {
+      "tableName": "CustomerOrdersProd",
+      "key": {
+        "order_id": {
+          "S": "ORD-9004"
+        }
+      }
+    },
+    "readOnly": true
+  },
+  {
+    "_meta": {
+      "id": "BENIGN-005",
+      "category": "BENIGN",
+      "service": "Azure Compute"
+    },
+    "time": "2026-10-21T06:05:00Z",
+    "resourceId": "/subscriptions/sub-8491-prod/resourceGroups/rg-web/providers/Microsoft.Compute/virtualMachines/vm-web-0",
+    "operationName": "Microsoft.Compute/virtualMachines/restart/action",
+    "category": "Administrative",
+    "resultType": "Success",
+    "caller": "autoscaler-service@enterprise.onmicrosoft.com"
+  },
+  {
+    "_meta": {
+      "id": "BENIGN-006",
+      "category": "BENIGN",
+      "service": "Azure Storage"
+    },
+    "time": "2026-10-21T06:06:00Z",
+    "resourceId": "/subscriptions/sub-8491-prod/resourceGroups/rg-data/providers/Microsoft.Storage/storageAccounts/stlogs0",
+    "operationName": "Microsoft.Storage/storageAccounts/listKeys/action",
+    "category": "Administrative",
+    "resultType": "Success",
+    "caller": "backup-worker@enterprise.onmicrosoft.com"
+  },
+  {
+    "_meta": {
+      "id": "BENIGN-007",
+      "category": "BENIGN",
+      "service": "GCP Compute"
+    },
+    "protoPayload": {
+      "serviceName": "compute.googleapis.com",
+      "methodName": "v1.compute.instances.get",
+      "resourceName": "projects/project-prod-9921/zones/us-central1-a/instances/backend-node-7",
+      "authenticationInfo": {
+        "principalEmail": "monitoring-agent@project-prod-9921.iam.gserviceaccount.com"
+      }
+    },
+    "timestamp": "2026-10-21T06:07:00Z",
+    "severity": "INFO"
+  },
+  {
+    "_meta": {
+      "id": "BENIGN-008",
+      "category": "BENIGN",
+      "service": "GCP BigQuery"
+    },
+    "protoPayload": {
+      "serviceName": "bigquery.googleapis.com",
+      "methodName": "jobservice.jobcompleted",
+      "resourceName": "projects/project-prod-9921/queries/query-job-7712",
+      "authenticationInfo": {
+        "principalEmail": "analyst-0@enterprise.com"
+      }
+    },
+    "timestamp": "2026-10-21T06:08:00Z",
+    "severity": "INFO"
+  },
+  {
+    "_meta": {
+      "id": "BENIGN-009",
+      "category": "BENIGN",
+      "service": "Kubernetes Pods"
+    },
+    "kind": "Event",
+    "apiVersion": "audit.k8s.io/v1",
+    "level": "Metadata",
+    "stage": "ResponseComplete",
+    "requestURI": "/api/v1/namespaces/default/pods/nginx-ingress-9",
+    "verb": "get",
+    "user": {
+      "username": "system:kube-scheduler"
+    },
+    "responseStatus": {
+      "code": 200
+    },
+    "stageTimestamp": "2026-10-21T06:09:00Z"
+  },
+  {
+    "_meta": {
+      "id": "BENIGN-010",
+      "category": "BENIGN",
+      "service": "AWS VPC Flow"
+    },
+    "version": 2,
+    "accountId": "112233445566",
+    "interfaceId": "eni-0a81b94c0",
+    "srcAddr": "10.0.10.45",
+    "dstAddr": "10.0.1.10",
+    "srcPort": 49282,
+    "dstPort": 443,
+    "protocol": 6,
+    "packets": 22,
+    "bytes": 2320,
+    "start": 1792549400,
+    "end": 1792549460,
+    "action": "ACCEPT",
+    "logStatus": "OK"
+  },
+  {
+    "_meta": {
+      "id": "BENIGN-011",
+      "category": "BENIGN",
+      "service": "AWS IAM"
+    },
+    "eventVersion": "1.08",
+    "userIdentity": {
+      "type": "IAMUser",
+      "userName": "analyst-user-1",
+      "accountId": "112233445566"
+    },
+    "eventTime": "2026-10-21T06:11:00Z",
+    "eventSource": "iam.amazonaws.com",
+    "eventName": "GetAccountSummary",
+    "awsRegion": "us-east-1",
+    "sourceIPAddress": "10.0.11.12",
+    "userAgent": "console.amazonaws.com",
+    "responseElements": null,
+    "readOnly": true
+  },
+  {
+    "_meta": {
+      "id": "BENIGN-012",
+      "category": "BENIGN",
+      "service": "AWS S3"
+    },
+    "eventVersion": "1.08",
+    "userIdentity": {
+      "type": "AssumedRole",
+      "arn": "arn:aws:iam::112233445566:role/app-backend",
+      "accountId": "112233445566"
+    },
+    "eventTime": "2026-10-21T06:12:00Z",
+    "eventSource": "s3.amazonaws.com",
+    "eventName": "GetObject",
+    "awsRegion": "us-east-1",
+    "sourceIPAddress": "172.31.12.4",
+    "requestParameters": {
+      "bucketName": "app-assets-production",
+      "key": "static/js/bundle-12.js"
+    },
+    "readOnly": true
+  },
+  {
+    "_meta": {
+      "id": "BENIGN-013",
+      "category": "BENIGN",
+      "service": "AWS STS"
+    },
+    "eventVersion": "1.08",
+    "userIdentity": {
+      "type": "IAMUser",
+      "userName": "ci-cd-bot",
+      "accountId": "112233445566"
+    },
+    "eventTime": "2026-10-21T06:13:00Z",
+    "eventSource": "sts.amazonaws.com",
+    "eventName": "GetCallerIdentity",
+    "awsRegion": "us-east-1",
+    "sourceIPAddress": "54.210.12.98",
+    "readOnly": true
+  },
+  {
+    "_meta": {
+      "id": "BENIGN-014",
+      "category": "BENIGN",
+      "service": "AWS DynamoDB"
+    },
+    "eventVersion": "1.08",
+    "userIdentity": {
+      "type": "AssumedRole",
+      "arn": "arn:aws:iam::112233445566:role/orders-microservice",
+      "accountId": "112233445566"
+    },
+    "eventTime": "2026-10-21T06:14:00Z",
+    "eventSource": "dynamodb.amazonaws.com",
+    "eventName": "GetItem",
+    "awsRegion": "us-east-1",
+    "sourceIPAddress": "10.100.4.5",
+    "requestParameters": {
+      "tableName": "CustomerOrdersProd",
+      "key": {
+        "order_id": {
+          "S": "ORD-9014"
+        }
+      }
+    },
+    "readOnly": true
+  },
+  {
+    "_meta": {
+      "id": "VULN-001",
+      "category": "VULNERABLE",
+      "threat_label": "S3 Public Read/Write Wildcard Policy",
+      "mitre_technique": "T1530 - Data from Cloud Storage Object",
+      "benchmark_violation": "CIS-AWS-2.1.5 / NIST-AC-3"
+    },
+    "eventVersion": "1.08",
+    "userIdentity": {
+      "type": "IAMUser",
+      "principalId": "AIDAJQABLZS5A3YEXAMPLE",
+      "arn": "arn:aws:iam::112233445566:user/devops-intern",
+      "accountId": "112233445566",
+      "userName": "devops-intern"
+    },
+    "eventTime": "2026-10-21T06:05:00Z",
+    "eventSource": "s3.amazonaws.com",
+    "eventName": "PutBucketPolicy",
+    "awsRegion": "us-east-1",
+    "sourceIPAddress": "198.51.100.23",
+    "userAgent": "aws-cli/2.15.15 Python/3.11.8",
+    "requestParameters": {
+      "bucketName": "corp-prod-financial-vault",
+      "bucketPolicy": {
+        "Version": "2012-10-17",
+        "Statement": [
+          {
+            "Sid": "PublicAccessForTesting",
+            "Effect": "Allow",
+            "Principal": "*",
+            "Action": [
+              "s3:GetObject",
+              "s3:PutObject"
+            ],
+            "Resource": "arn:aws:s3:::corp-prod-financial-vault/*"
+          }
+        ]
+      }
+    },
+    "responseElements": null,
+    "readOnly": false,
+    "eventType": "AwsApiCall"
+  },
+  {
+    "_meta": {
+      "id": "BENIGN-015",
+      "category": "BENIGN",
+      "service": "Azure Compute"
+    },
+    "time": "2026-10-21T06:15:00Z",
+    "resourceId": "/subscriptions/sub-8491-prod/resourceGroups/rg-web/providers/Microsoft.Compute/virtualMachines/vm-web-0",
+    "operationName": "Microsoft.Compute/virtualMachines/restart/action",
+    "category": "Administrative",
+    "resultType": "Success",
+    "caller": "autoscaler-service@enterprise.onmicrosoft.com"
+  },
+  {
+    "_meta": {
+      "id": "BENIGN-016",
+      "category": "BENIGN",
+      "service": "Azure Storage"
+    },
+    "time": "2026-10-21T06:16:00Z",
+    "resourceId": "/subscriptions/sub-8491-prod/resourceGroups/rg-data/providers/Microsoft.Storage/storageAccounts/stlogs1",
+    "operationName": "Microsoft.Storage/storageAccounts/listKeys/action",
+    "category": "Administrative",
+    "resultType": "Success",
+    "caller": "backup-worker@enterprise.onmicrosoft.com"
+  },
+  {
+    "_meta": {
+      "id": "BENIGN-017",
+      "category": "BENIGN",
+      "service": "GCP Compute"
+    },
+    "protoPayload": {
+      "serviceName": "compute.googleapis.com",
+      "methodName": "v1.compute.instances.get",
+      "resourceName": "projects/project-prod-9921/zones/us-central1-a/instances/backend-node-1",
+      "authenticationInfo": {
+        "principalEmail": "monitoring-agent@project-prod-9921.iam.gserviceaccount.com"
+      }
+    },
+    "timestamp": "2026-10-21T06:17:00Z",
+    "severity": "INFO"
+  },
+  {
+    "_meta": {
+      "id": "BENIGN-018",
+      "category": "BENIGN",
+      "service": "GCP BigQuery"
+    },
+    "protoPayload": {
+      "serviceName": "bigquery.googleapis.com",
+      "methodName": "jobservice.jobcompleted",
+      "resourceName": "projects/project-prod-9921/queries/query-job-7712",
+      "authenticationInfo": {
+        "principalEmail": "analyst-2@enterprise.com"
+      }
+    },
+    "timestamp": "2026-10-21T06:18:00Z",
+    "severity": "INFO"
+  },
+  {
+    "_meta": {
+      "id": "DANG-001",
+      "category": "DANGEROUS",
+      "threat_label": "Defense Evasion: Active CloudTrail Disabling & Trail Deletion",
+      "mitre_technique": "T1562.001 - Impair Defenses: Disable Cloud Logs",
+      "severity_assessment": "CRITICAL - Active Adversary Blinding SOC"
+    },
+    "eventVersion": "1.08",
+    "userIdentity": {
+      "type": "IAMUser",
+      "principalId": "AIDAJCOMPROMISED01",
+      "arn": "arn:aws:iam::112233445566:user/compromised-secops",
+      "accountId": "112233445566",
+      "userName": "compromised-secops"
+    },
+    "eventTime": "2026-10-21T06:35:00Z",
+    "eventSource": "cloudtrail.amazonaws.com",
+    "eventName": "StopLogging",
+    "awsRegion": "us-east-1",
+    "sourceIPAddress": "185.220.101.5",
+    "userAgent": "Boto3/1.28.1 Python/3.9.11 Linux",
+    "requestParameters": {
+      "name": "arn:aws:cloudtrail:us-east-1:112233445566:trail/enterprise-master-audit-trail"
+    },
+    "responseElements": null,
+    "readOnly": false,
+    "eventType": "AwsApiCall"
+  },
+  {
+    "_meta": {
+      "id": "BENIGN-019",
+      "category": "BENIGN",
+      "service": "Kubernetes Pods"
+    },
+    "kind": "Event",
+    "apiVersion": "audit.k8s.io/v1",
+    "level": "Metadata",
+    "stage": "ResponseComplete",
+    "requestURI": "/api/v1/namespaces/default/pods/nginx-ingress-9",
+    "verb": "get",
+    "user": {
+      "username": "system:kube-scheduler"
+    },
+    "responseStatus": {
+      "code": 200
+    },
+    "stageTimestamp": "2026-10-21T06:19:00Z"
+  },
+  {
+    "_meta": {
+      "id": "BENIGN-020",
+      "category": "BENIGN",
+      "service": "AWS VPC Flow"
+    },
+    "version": 2,
+    "accountId": "112233445566",
+    "interfaceId": "eni-0a81b94c0",
+    "srcAddr": "10.0.0.45",
+    "dstAddr": "10.0.1.10",
+    "srcPort": 49412,
+    "dstPort": 443,
+    "protocol": 6,
+    "packets": 32,
+    "bytes": 3600,
+    "start": 1792550000,
+    "end": 1792550060,
+    "action": "ACCEPT",
+    "logStatus": "OK"
+  },
+  {
+    "_meta": {
+      "id": "BENIGN-021",
+      "category": "BENIGN",
+      "service": "AWS IAM"
+    },
+    "eventVersion": "1.08",
+    "userIdentity": {
+      "type": "IAMUser",
+      "userName": "analyst-user-1",
+      "accountId": "112233445566"
+    },
+    "eventTime": "2026-10-21T06:21:00Z",
+    "eventSource": "iam.amazonaws.com",
+    "eventName": "GetAccountSummary",
+    "awsRegion": "us-east-1",
+    "sourceIPAddress": "10.0.21.12",
+    "userAgent": "console.amazonaws.com",
+    "responseElements": null,
+    "readOnly": true
+  },
+  {
+    "_meta": {
+      "id": "BENIGN-022",
+      "category": "BENIGN",
+      "service": "AWS S3"
+    },
+    "eventVersion": "1.08",
+    "userIdentity": {
+      "type": "AssumedRole",
+      "arn": "arn:aws:iam::112233445566:role/app-backend",
+      "accountId": "112233445566"
+    },
+    "eventTime": "2026-10-21T06:22:00Z",
+    "eventSource": "s3.amazonaws.com",
+    "eventName": "GetObject",
+    "awsRegion": "us-east-1",
+    "sourceIPAddress": "172.31.22.4",
+    "requestParameters": {
+      "bucketName": "app-assets-production",
+      "key": "static/js/bundle-22.js"
+    },
+    "readOnly": true
+  },
+  {
+    "_meta": {
+      "id": "BENIGN-023",
+      "category": "BENIGN",
+      "service": "AWS STS"
+    },
+    "eventVersion": "1.08",
+    "userIdentity": {
+      "type": "IAMUser",
+      "userName": "ci-cd-bot",
+      "accountId": "112233445566"
+    },
+    "eventTime": "2026-10-21T06:23:00Z",
+    "eventSource": "sts.amazonaws.com",
+    "eventName": "GetCallerIdentity",
+    "awsRegion": "us-east-1",
+    "sourceIPAddress": "54.210.12.98",
+    "readOnly": true
+  },
+  {
+    "_meta": {
+      "id": "BENIGN-024",
+      "category": "BENIGN",
+      "service": "AWS DynamoDB"
+    },
+    "eventVersion": "1.08",
+    "userIdentity": {
+      "type": "AssumedRole",
+      "arn": "arn:aws:iam::112233445566:role/orders-microservice",
+      "accountId": "112233445566"
+    },
+    "eventTime": "2026-10-21T06:24:00Z",
+    "eventSource": "dynamodb.amazonaws.com",
+    "eventName": "GetItem",
+    "awsRegion": "us-east-1",
+    "sourceIPAddress": "10.100.4.5",
+    "requestParameters": {
+      "tableName": "CustomerOrdersProd",
+      "key": {
+        "order_id": {
+          "S": "ORD-9024"
+        }
+      }
+    },
+    "readOnly": true
+  },
+  {
+    "_meta": {
+      "id": "BENIGN-025",
+      "category": "BENIGN",
+      "service": "Azure Compute"
+    },
+    "time": "2026-10-21T06:25:00Z",
+    "resourceId": "/subscriptions/sub-8491-prod/resourceGroups/rg-web/providers/Microsoft.Compute/virtualMachines/vm-web-0",
+    "operationName": "Microsoft.Compute/virtualMachines/restart/action",
+    "category": "Administrative",
+    "resultType": "Success",
+    "caller": "autoscaler-service@enterprise.onmicrosoft.com"
+  },
+  {
+    "_meta": {
+      "id": "BENIGN-026",
+      "category": "BENIGN",
+      "service": "Azure Storage"
+    },
+    "time": "2026-10-21T06:26:00Z",
+    "resourceId": "/subscriptions/sub-8491-prod/resourceGroups/rg-data/providers/Microsoft.Storage/storageAccounts/stlogs2",
+    "operationName": "Microsoft.Storage/storageAccounts/listKeys/action",
+    "category": "Administrative",
+    "resultType": "Success",
+    "caller": "backup-worker@enterprise.onmicrosoft.com"
+  },
+  {
+    "_meta": {
+      "id": "BENIGN-027",
+      "category": "BENIGN",
+      "service": "GCP Compute"
+    },
+    "protoPayload": {
+      "serviceName": "compute.googleapis.com",
+      "methodName": "v1.compute.instances.get",
+      "resourceName": "projects/project-prod-9921/zones/us-central1-a/instances/backend-node-3",
+      "authenticationInfo": {
+        "principalEmail": "monitoring-agent@project-prod-9921.iam.gserviceaccount.com"
+      }
+    },
+    "timestamp": "2026-10-21T06:27:00Z",
+    "severity": "INFO"
+  },
+  {
+    "_meta": {
+      "id": "BENIGN-028",
+      "category": "BENIGN",
+      "service": "GCP BigQuery"
+    },
+    "protoPayload": {
+      "serviceName": "bigquery.googleapis.com",
+      "methodName": "jobservice.jobcompleted",
+      "resourceName": "projects/project-prod-9921/queries/query-job-7712",
+      "authenticationInfo": {
+        "principalEmail": "analyst-0@enterprise.com"
+      }
+    },
+    "timestamp": "2026-10-21T06:28:00Z",
+    "severity": "INFO"
+  },
+  {
+    "_meta": {
+      "id": "BENIGN-029",
+      "category": "BENIGN",
+      "service": "Kubernetes Pods"
+    },
+    "kind": "Event",
+    "apiVersion": "audit.k8s.io/v1",
+    "level": "Metadata",
+    "stage": "ResponseComplete",
+    "requestURI": "/api/v1/namespaces/default/pods/nginx-ingress-9",
+    "verb": "get",
+    "user": {
+      "username": "system:kube-scheduler"
+    },
+    "responseStatus": {
+      "code": 200
+    },
+    "stageTimestamp": "2026-10-21T06:29:00Z"
+  },
+  {
+    "_meta": {
+      "id": "BENIGN-030",
+      "category": "BENIGN",
+      "service": "AWS VPC Flow"
+    },
+    "version": 2,
+    "accountId": "112233445566",
+    "interfaceId": "eni-0a81b94c0",
+    "srcAddr": "10.0.10.45",
+    "dstAddr": "10.0.1.10",
+    "srcPort": 49542,
+    "dstPort": 443,
+    "protocol": 6,
+    "packets": 42,
+    "bytes": 4880,
+    "start": 1792550600,
+    "end": 1792550660,
+    "action": "ACCEPT",
+    "logStatus": "OK"
+  },
+  {
+    "_meta": {
+      "id": "BENIGN-031",
+      "category": "BENIGN",
+      "service": "AWS IAM"
+    },
+    "eventVersion": "1.08",
+    "userIdentity": {
+      "type": "IAMUser",
+      "userName": "analyst-user-1",
+      "accountId": "112233445566"
+    },
+    "eventTime": "2026-10-21T06:31:00Z",
+    "eventSource": "iam.amazonaws.com",
+    "eventName": "GetAccountSummary",
+    "awsRegion": "us-east-1",
+    "sourceIPAddress": "10.0.31.12",
+    "userAgent": "console.amazonaws.com",
+    "responseElements": null,
+    "readOnly": true
+  },
+  {
+    "_meta": {
+      "id": "BENIGN-032",
+      "category": "BENIGN",
+      "service": "AWS S3"
+    },
+    "eventVersion": "1.08",
+    "userIdentity": {
+      "type": "AssumedRole",
+      "arn": "arn:aws:iam::112233445566:role/app-backend",
+      "accountId": "112233445566"
+    },
+    "eventTime": "2026-10-21T06:32:00Z",
+    "eventSource": "s3.amazonaws.com",
+    "eventName": "GetObject",
+    "awsRegion": "us-east-1",
+    "sourceIPAddress": "172.31.32.4",
+    "requestParameters": {
+      "bucketName": "app-assets-production",
+      "key": "static/js/bundle-32.js"
+    },
+    "readOnly": true
+  },
+  {
+    "_meta": {
+      "id": "VULN-002",
+      "category": "VULNERABLE",
+      "threat_label": "Security Group Open Ingress SSH (0.0.0.0/0)",
+      "mitre_technique": "T1046 - Network Service Discovery",
+      "benchmark_violation": "CIS-AWS-5.2 / NIST-SC-7"
+    },
+    "eventVersion": "1.08",
+    "userIdentity": {
+      "type": "AssumedRole",
+      "principalId": "AROAJQABLZS5A3YEXAMPLE:contractor-session",
+      "arn": "arn:aws:iam::112233445566:role/ContractorDevRole",
+      "accountId": "112233445566"
+    },
+    "eventTime": "2026-10-21T06:12:00Z",
+    "eventSource": "ec2.amazonaws.com",
+    "eventName": "AuthorizeSecurityGroupIngress",
+    "awsRegion": "us-west-2",
+    "sourceIPAddress": "203.0.113.45",
+    "requestParameters": {
+      "groupId": "sg-01a9f02bca882194d",
+      "ipPermissions": {
+        "items": [
+          {
+            "ipProtocol": "tcp",
+            "fromPort": 22,
+            "toPort": 22,
+            "ipRanges": {
+              "items": [
+                {
+                  "cidrIp": "0.0.0.0/0",
+                  "description": "Temporary SSH for debugging"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "responseElements": {
+      "_return": true
+    },
+    "readOnly": false,
+    "eventType": "AwsApiCall"
+  },
+  {
+    "_meta": {
+      "id": "BENIGN-033",
+      "category": "BENIGN",
+      "service": "AWS STS"
+    },
+    "eventVersion": "1.08",
+    "userIdentity": {
+      "type": "IAMUser",
+      "userName": "ci-cd-bot",
+      "accountId": "112233445566"
+    },
+    "eventTime": "2026-10-21T06:33:00Z",
+    "eventSource": "sts.amazonaws.com",
+    "eventName": "GetCallerIdentity",
+    "awsRegion": "us-east-1",
+    "sourceIPAddress": "54.210.12.98",
+    "readOnly": true
+  },
+  {
+    "_meta": {
+      "id": "BENIGN-034",
+      "category": "BENIGN",
+      "service": "AWS DynamoDB"
+    },
+    "eventVersion": "1.08",
+    "userIdentity": {
+      "type": "AssumedRole",
+      "arn": "arn:aws:iam::112233445566:role/orders-microservice",
+      "accountId": "112233445566"
+    },
+    "eventTime": "2026-10-21T06:34:00Z",
+    "eventSource": "dynamodb.amazonaws.com",
+    "eventName": "GetItem",
+    "awsRegion": "us-east-1",
+    "sourceIPAddress": "10.100.4.5",
+    "requestParameters": {
+      "tableName": "CustomerOrdersProd",
+      "key": {
+        "order_id": {
+          "S": "ORD-9034"
+        }
+      }
+    },
+    "readOnly": true
+  },
+  {
+    "_meta": {
+      "id": "BENIGN-035",
+      "category": "BENIGN",
+      "service": "Azure Compute"
+    },
+    "time": "2026-10-21T06:35:00Z",
+    "resourceId": "/subscriptions/sub-8491-prod/resourceGroups/rg-web/providers/Microsoft.Compute/virtualMachines/vm-web-0",
+    "operationName": "Microsoft.Compute/virtualMachines/restart/action",
+    "category": "Administrative",
+    "resultType": "Success",
+    "caller": "autoscaler-service@enterprise.onmicrosoft.com"
+  },
+  {
+    "_meta": {
+      "id": "BENIGN-036",
+      "category": "BENIGN",
+      "service": "Azure Storage"
+    },
+    "time": "2026-10-21T06:36:00Z",
+    "resourceId": "/subscriptions/sub-8491-prod/resourceGroups/rg-data/providers/Microsoft.Storage/storageAccounts/stlogs0",
+    "operationName": "Microsoft.Storage/storageAccounts/listKeys/action",
+    "category": "Administrative",
+    "resultType": "Success",
+    "caller": "backup-worker@enterprise.onmicrosoft.com"
+  },
+  {
+    "_meta": {
+      "id": "DANG-002",
+      "category": "DANGEROUS",
+      "threat_label": "Toxic Combination: EC2 Role Credential Exfiltration Outside AWS",
+      "mitre_technique": "T1552.005 - Cloud Instance Metadata API",
+      "severity_assessment": "CRITICAL - Stolen STS Metadata Token Used from Foreign IP"
+    },
+    "schemaVersion": "2.0",
+    "accountId": "112233445566",
+    "region": "us-east-1",
+    "type": "UnauthorizedAccess:IAMUser/InstanceCredentialExfiltration.OutsideAWS",
+    "severity": 8.5,
+    "createdAt": "2026-10-21T06:41:00Z",
+    "title": "Credentials for EC2 role 'prod-payment-processor' exfiltrated and invoked outside AWS infrastructure",
+    "description": "IAM credentials belonging to instance profile 'prod-payment-processor' on instance i-084a921c were used from IP 194.26.29.112 outside the AWS network to call sts:GetCallerIdentity and s3:ListBuckets.",
+    "resource": {
+      "resourceType": "AccessKey",
+      "accessKeyDetails": {
+        "accessKeyId": "ASIAVEXAMPLEEXFIL01",
+        "principalId": "AROAJEXAMPLEPAYMENT:i-084a921c",
+        "userName": "prod-payment-processor",
+        "userType": "AssumedRole"
+      }
+    },
+    "service": {
+      "serviceName": "guardduty",
+      "action": {
+        "actionType": "AWS_API_CALL",
+        "awsApiCallAction": {
+          "api": "ListBuckets",
+          "serviceName": "s3.amazonaws.com",
+          "callerType": "Remote IP",
+          "remoteIpDetails": {
+            "ipAddressV4": "194.26.29.112",
+            "organization": {
+              "asnOrg": "Rogue Autonomous System Hosting"
+            },
+            "country": {
+              "countryName": "Seychelles"
+            }
+          }
+        }
+      }
+    }
+  },
+  {
+    "_meta": {
+      "id": "BENIGN-037",
+      "category": "BENIGN",
+      "service": "GCP Compute"
+    },
+    "protoPayload": {
+      "serviceName": "compute.googleapis.com",
+      "methodName": "v1.compute.instances.get",
+      "resourceName": "projects/project-prod-9921/zones/us-central1-a/instances/backend-node-5",
+      "authenticationInfo": {
+        "principalEmail": "monitoring-agent@project-prod-9921.iam.gserviceaccount.com"
+      }
+    },
+    "timestamp": "2026-10-21T06:37:00Z",
+    "severity": "INFO"
+  },
+  {
+    "_meta": {
+      "id": "BENIGN-038",
+      "category": "BENIGN",
+      "service": "GCP BigQuery"
+    },
+    "protoPayload": {
+      "serviceName": "bigquery.googleapis.com",
+      "methodName": "jobservice.jobcompleted",
+      "resourceName": "projects/project-prod-9921/queries/query-job-7712",
+      "authenticationInfo": {
+        "principalEmail": "analyst-2@enterprise.com"
+      }
+    },
+    "timestamp": "2026-10-21T06:38:00Z",
+    "severity": "INFO"
+  },
+  {
+    "_meta": {
+      "id": "BENIGN-039",
+      "category": "BENIGN",
+      "service": "Kubernetes Pods"
+    },
+    "kind": "Event",
+    "apiVersion": "audit.k8s.io/v1",
+    "level": "Metadata",
+    "stage": "ResponseComplete",
+    "requestURI": "/api/v1/namespaces/default/pods/nginx-ingress-9",
+    "verb": "get",
+    "user": {
+      "username": "system:kube-scheduler"
+    },
+    "responseStatus": {
+      "code": 200
+    },
+    "stageTimestamp": "2026-10-21T06:39:00Z"
+  },
+  {
+    "_meta": {
+      "id": "BENIGN-040",
+      "category": "BENIGN",
+      "service": "AWS VPC Flow"
+    },
+    "version": 2,
+    "accountId": "112233445566",
+    "interfaceId": "eni-0a81b94c0",
+    "srcAddr": "10.0.0.45",
+    "dstAddr": "10.0.1.10",
+    "srcPort": 49672,
+    "dstPort": 443,
+    "protocol": 6,
+    "packets": 52,
+    "bytes": 6160,
+    "start": 1792551200,
+    "end": 1792551260,
+    "action": "ACCEPT",
+    "logStatus": "OK"
+  },
+  {
+    "_meta": {
+      "id": "BENIGN-041",
+      "category": "BENIGN",
+      "service": "AWS IAM"
+    },
+    "eventVersion": "1.08",
+    "userIdentity": {
+      "type": "IAMUser",
+      "userName": "analyst-user-1",
+      "accountId": "112233445566"
+    },
+    "eventTime": "2026-10-21T06:41:00Z",
+    "eventSource": "iam.amazonaws.com",
+    "eventName": "GetAccountSummary",
+    "awsRegion": "us-east-1",
+    "sourceIPAddress": "10.0.41.12",
+    "userAgent": "console.amazonaws.com",
+    "responseElements": null,
+    "readOnly": true
+  },
+  {
+    "_meta": {
+      "id": "BENIGN-042",
+      "category": "BENIGN",
+      "service": "AWS S3"
+    },
+    "eventVersion": "1.08",
+    "userIdentity": {
+      "type": "AssumedRole",
+      "arn": "arn:aws:iam::112233445566:role/app-backend",
+      "accountId": "112233445566"
+    },
+    "eventTime": "2026-10-21T06:42:00Z",
+    "eventSource": "s3.amazonaws.com",
+    "eventName": "GetObject",
+    "awsRegion": "us-east-1",
+    "sourceIPAddress": "172.31.42.4",
+    "requestParameters": {
+      "bucketName": "app-assets-production",
+      "key": "static/js/bundle-42.js"
+    },
+    "readOnly": true
+  },
+  {
+    "_meta": {
+      "id": "BENIGN-043",
+      "category": "BENIGN",
+      "service": "AWS STS"
+    },
+    "eventVersion": "1.08",
+    "userIdentity": {
+      "type": "IAMUser",
+      "userName": "ci-cd-bot",
+      "accountId": "112233445566"
+    },
+    "eventTime": "2026-10-21T06:43:00Z",
+    "eventSource": "sts.amazonaws.com",
+    "eventName": "GetCallerIdentity",
+    "awsRegion": "us-east-1",
+    "sourceIPAddress": "54.210.12.98",
+    "readOnly": true
+  },
+  {
+    "_meta": {
+      "id": "BENIGN-044",
+      "category": "BENIGN",
+      "service": "AWS DynamoDB"
+    },
+    "eventVersion": "1.08",
+    "userIdentity": {
+      "type": "AssumedRole",
+      "arn": "arn:aws:iam::112233445566:role/orders-microservice",
+      "accountId": "112233445566"
+    },
+    "eventTime": "2026-10-21T06:44:00Z",
+    "eventSource": "dynamodb.amazonaws.com",
+    "eventName": "GetItem",
+    "awsRegion": "us-east-1",
+    "sourceIPAddress": "10.100.4.5",
+    "requestParameters": {
+      "tableName": "CustomerOrdersProd",
+      "key": {
+        "order_id": {
+          "S": "ORD-9044"
+        }
+      }
+    },
+    "readOnly": true
+  },
+  {
+    "_meta": {
+      "id": "BENIGN-045",
+      "category": "BENIGN",
+      "service": "Azure Compute"
+    },
+    "time": "2026-10-21T06:45:00Z",
+    "resourceId": "/subscriptions/sub-8491-prod/resourceGroups/rg-web/providers/Microsoft.Compute/virtualMachines/vm-web-0",
+    "operationName": "Microsoft.Compute/virtualMachines/restart/action",
+    "category": "Administrative",
+    "resultType": "Success",
+    "caller": "autoscaler-service@enterprise.onmicrosoft.com"
+  },
+  {
+    "_meta": {
+      "id": "BENIGN-046",
+      "category": "BENIGN",
+      "service": "Azure Storage"
+    },
+    "time": "2026-10-21T06:46:00Z",
+    "resourceId": "/subscriptions/sub-8491-prod/resourceGroups/rg-data/providers/Microsoft.Storage/storageAccounts/stlogs1",
+    "operationName": "Microsoft.Storage/storageAccounts/listKeys/action",
+    "category": "Administrative",
+    "resultType": "Success",
+    "caller": "backup-worker@enterprise.onmicrosoft.com"
+  },
+  {
+    "_meta": {
+      "id": "BENIGN-047",
+      "category": "BENIGN",
+      "service": "GCP Compute"
+    },
+    "protoPayload": {
+      "serviceName": "compute.googleapis.com",
+      "methodName": "v1.compute.instances.get",
+      "resourceName": "projects/project-prod-9921/zones/us-central1-a/instances/backend-node-7",
+      "authenticationInfo": {
+        "principalEmail": "monitoring-agent@project-prod-9921.iam.gserviceaccount.com"
+      }
+    },
+    "timestamp": "2026-10-21T06:47:00Z",
+    "severity": "INFO"
+  },
+  {
+    "_meta": {
+      "id": "BENIGN-048",
+      "category": "BENIGN",
+      "service": "GCP BigQuery"
+    },
+    "protoPayload": {
+      "serviceName": "bigquery.googleapis.com",
+      "methodName": "jobservice.jobcompleted",
+      "resourceName": "projects/project-prod-9921/queries/query-job-7712",
+      "authenticationInfo": {
+        "principalEmail": "analyst-0@enterprise.com"
+      }
+    },
+    "timestamp": "2026-10-21T06:48:00Z",
+    "severity": "INFO"
+  },
+  {
+    "_meta": {
+      "id": "BENIGN-049",
+      "category": "BENIGN",
+      "service": "Kubernetes Pods"
+    },
+    "kind": "Event",
+    "apiVersion": "audit.k8s.io/v1",
+    "level": "Metadata",
+    "stage": "ResponseComplete",
+    "requestURI": "/api/v1/namespaces/default/pods/nginx-ingress-9",
+    "verb": "get",
+    "user": {
+      "username": "system:kube-scheduler"
+    },
+    "responseStatus": {
+      "code": 200
+    },
+    "stageTimestamp": "2026-10-21T06:49:00Z"
+  },
+  {
+    "_meta": {
+      "id": "BENIGN-050",
+      "category": "BENIGN",
+      "service": "AWS VPC Flow"
+    },
+    "version": 2,
+    "accountId": "112233445566",
+    "interfaceId": "eni-0a81b94c0",
+    "srcAddr": "10.0.10.45",
+    "dstAddr": "10.0.1.10",
+    "srcPort": 49802,
+    "dstPort": 443,
+    "protocol": 6,
+    "packets": 12,
+    "bytes": 7440,
+    "start": 1792551800,
+    "end": 1792551860,
+    "action": "ACCEPT",
+    "logStatus": "OK"
+  },
+  {
+    "_meta": {
+      "id": "VULN-003",
+      "category": "VULNERABLE",
+      "threat_label": "Azure NSG Ingress Rule Exposing RDP to Internet",
+      "mitre_technique": "T1021.001 - Remote Services: Remote Desktop Protocol",
+      "benchmark_violation": "CIS-Azure-6.2 / NIST-SC-7"
+    },
+    "time": "2026-10-21T06:18:00Z",
+    "resourceId": "/subscriptions/sub-8491-prod/resourceGroups/rg-core-infra/providers/Microsoft.Network/networkSecurityGroups/nsg-db-backend/securityRules/AllowRDPGlobal",
+    "operationName": "Microsoft.Network/networkSecurityGroups/securityRules/write",
+    "category": "Administrative",
+    "resultType": "Success",
+    "caller": "admin-contractor@enterprise.onmicrosoft.com",
+    "properties": {
+      "requestbody": {
+        "properties": {
+          "protocol": "Tcp",
+          "sourceAddressPrefix": "*",
+          "destinationAddressPrefix": "*",
+          "access": "Allow",
+          "destinationPortRange": "3389",
+          "direction": "Inbound",
+          "priority": 110
+        }
+      }
+    }
+  },
+  {
+    "_meta": {
+      "id": "BENIGN-051",
+      "category": "BENIGN",
+      "service": "AWS IAM"
+    },
+    "eventVersion": "1.08",
+    "userIdentity": {
+      "type": "IAMUser",
+      "userName": "analyst-user-1",
+      "accountId": "112233445566"
+    },
+    "eventTime": "2026-10-21T06:51:00Z",
+    "eventSource": "iam.amazonaws.com",
+    "eventName": "GetAccountSummary",
+    "awsRegion": "us-east-1",
+    "sourceIPAddress": "10.0.51.12",
+    "userAgent": "console.amazonaws.com",
+    "responseElements": null,
+    "readOnly": true
+  },
+  {
+    "_meta": {
+      "id": "BENIGN-052",
+      "category": "BENIGN",
+      "service": "AWS S3"
+    },
+    "eventVersion": "1.08",
+    "userIdentity": {
+      "type": "AssumedRole",
+      "arn": "arn:aws:iam::112233445566:role/app-backend",
+      "accountId": "112233445566"
+    },
+    "eventTime": "2026-10-21T06:52:00Z",
+    "eventSource": "s3.amazonaws.com",
+    "eventName": "GetObject",
+    "awsRegion": "us-east-1",
+    "sourceIPAddress": "172.31.2.4",
+    "requestParameters": {
+      "bucketName": "app-assets-production",
+      "key": "static/js/bundle-52.js"
+    },
+    "readOnly": true
+  },
+  {
+    "_meta": {
+      "id": "BENIGN-053",
+      "category": "BENIGN",
+      "service": "AWS STS"
+    },
+    "eventVersion": "1.08",
+    "userIdentity": {
+      "type": "IAMUser",
+      "userName": "ci-cd-bot",
+      "accountId": "112233445566"
+    },
+    "eventTime": "2026-10-21T06:53:00Z",
+    "eventSource": "sts.amazonaws.com",
+    "eventName": "GetCallerIdentity",
+    "awsRegion": "us-east-1",
+    "sourceIPAddress": "54.210.12.98",
+    "readOnly": true
+  },
+  {
+    "_meta": {
+      "id": "BENIGN-054",
+      "category": "BENIGN",
+      "service": "AWS DynamoDB"
+    },
+    "eventVersion": "1.08",
+    "userIdentity": {
+      "type": "AssumedRole",
+      "arn": "arn:aws:iam::112233445566:role/orders-microservice",
+      "accountId": "112233445566"
+    },
+    "eventTime": "2026-10-21T06:54:00Z",
+    "eventSource": "dynamodb.amazonaws.com",
+    "eventName": "GetItem",
+    "awsRegion": "us-east-1",
+    "sourceIPAddress": "10.100.4.5",
+    "requestParameters": {
+      "tableName": "CustomerOrdersProd",
+      "key": {
+        "order_id": {
+          "S": "ORD-9054"
+        }
+      }
+    },
+    "readOnly": true
+  },
+  {
+    "_meta": {
+      "id": "DANG-003",
+      "category": "DANGEROUS",
+      "threat_label": "Direct Privilege Escalation: Rogue User Attaching AdministratorAccess Policy",
+      "mitre_technique": "T1098 - Account Manipulation",
+      "severity_assessment": "CRITICAL - Full Cloud Account Takeover"
+    },
+    "eventVersion": "1.08",
+    "userIdentity": {
+      "type": "IAMUser",
+      "principalId": "AIDAJBACKDOOR002",
+      "arn": "arn:aws:iam::112233445566:user/ghost-service-worker",
+      "accountId": "112233445566",
+      "userName": "ghost-service-worker"
+    },
+    "eventTime": "2026-10-21T06:48:00Z",
+    "eventSource": "iam.amazonaws.com",
+    "eventName": "AttachUserPolicy",
+    "awsRegion": "us-east-1",
+    "sourceIPAddress": "91.240.118.172",
+    "requestParameters": {
+      "userName": "ghost-service-worker",
+      "policyArn": "arn:aws:iam::aws:policy/AdministratorAccess"
+    },
+    "responseElements": null,
+    "readOnly": false,
+    "eventType": "AwsApiCall"
+  },
+  {
+    "_meta": {
+      "id": "BENIGN-055",
+      "category": "BENIGN",
+      "service": "Azure Compute"
+    },
+    "time": "2026-10-21T06:55:00Z",
+    "resourceId": "/subscriptions/sub-8491-prod/resourceGroups/rg-web/providers/Microsoft.Compute/virtualMachines/vm-web-0",
+    "operationName": "Microsoft.Compute/virtualMachines/restart/action",
+    "category": "Administrative",
+    "resultType": "Success",
+    "caller": "autoscaler-service@enterprise.onmicrosoft.com"
+  },
+  {
+    "_meta": {
+      "id": "BENIGN-056",
+      "category": "BENIGN",
+      "service": "Azure Storage"
+    },
+    "time": "2026-10-21T06:56:00Z",
+    "resourceId": "/subscriptions/sub-8491-prod/resourceGroups/rg-data/providers/Microsoft.Storage/storageAccounts/stlogs2",
+    "operationName": "Microsoft.Storage/storageAccounts/listKeys/action",
+    "category": "Administrative",
+    "resultType": "Success",
+    "caller": "backup-worker@enterprise.onmicrosoft.com"
+  },
+  {
+    "_meta": {
+      "id": "BENIGN-057",
+      "category": "BENIGN",
+      "service": "GCP Compute"
+    },
+    "protoPayload": {
+      "serviceName": "compute.googleapis.com",
+      "methodName": "v1.compute.instances.get",
+      "resourceName": "projects/project-prod-9921/zones/us-central1-a/instances/backend-node-1",
+      "authenticationInfo": {
+        "principalEmail": "monitoring-agent@project-prod-9921.iam.gserviceaccount.com"
+      }
+    },
+    "timestamp": "2026-10-21T06:57:00Z",
+    "severity": "INFO"
+  },
+  {
+    "_meta": {
+      "id": "BENIGN-058",
+      "category": "BENIGN",
+      "service": "GCP BigQuery"
+    },
+    "protoPayload": {
+      "serviceName": "bigquery.googleapis.com",
+      "methodName": "jobservice.jobcompleted",
+      "resourceName": "projects/project-prod-9921/queries/query-job-7712",
+      "authenticationInfo": {
+        "principalEmail": "analyst-2@enterprise.com"
+      }
+    },
+    "timestamp": "2026-10-21T06:58:00Z",
+    "severity": "INFO"
+  },
+  {
+    "_meta": {
+      "id": "BENIGN-059",
+      "category": "BENIGN",
+      "service": "Kubernetes Pods"
+    },
+    "kind": "Event",
+    "apiVersion": "audit.k8s.io/v1",
+    "level": "Metadata",
+    "stage": "ResponseComplete",
+    "requestURI": "/api/v1/namespaces/default/pods/nginx-ingress-9",
+    "verb": "get",
+    "user": {
+      "username": "system:kube-scheduler"
+    },
+    "responseStatus": {
+      "code": 200
+    },
+    "stageTimestamp": "2026-10-21T06:59:00Z"
+  },
+  {
+    "_meta": {
+      "id": "BENIGN-060",
+      "category": "BENIGN",
+      "service": "AWS VPC Flow"
+    },
+    "version": 2,
+    "accountId": "112233445566",
+    "interfaceId": "eni-0a81b94c0",
+    "srcAddr": "10.0.0.45",
+    "dstAddr": "10.0.1.10",
+    "srcPort": 49932,
+    "dstPort": 443,
+    "protocol": 6,
+    "packets": 22,
+    "bytes": 8720,
+    "start": 1792552400,
+    "end": 1792552460,
+    "action": "ACCEPT",
+    "logStatus": "OK"
+  },
+  {
+    "_meta": {
+      "id": "BENIGN-061",
+      "category": "BENIGN",
+      "service": "AWS IAM"
+    },
+    "eventVersion": "1.08",
+    "userIdentity": {
+      "type": "IAMUser",
+      "userName": "analyst-user-1",
+      "accountId": "112233445566"
+    },
+    "eventTime": "2026-10-21T07:01:00Z",
+    "eventSource": "iam.amazonaws.com",
+    "eventName": "GetAccountSummary",
+    "awsRegion": "us-east-1",
+    "sourceIPAddress": "10.0.61.12",
+    "userAgent": "console.amazonaws.com",
+    "responseElements": null,
+    "readOnly": true
+  },
+  {
+    "_meta": {
+      "id": "BENIGN-062",
+      "category": "BENIGN",
+      "service": "AWS S3"
+    },
+    "eventVersion": "1.08",
+    "userIdentity": {
+      "type": "AssumedRole",
+      "arn": "arn:aws:iam::112233445566:role/app-backend",
+      "accountId": "112233445566"
+    },
+    "eventTime": "2026-10-21T07:02:00Z",
+    "eventSource": "s3.amazonaws.com",
+    "eventName": "GetObject",
+    "awsRegion": "us-east-1",
+    "sourceIPAddress": "172.31.12.4",
+    "requestParameters": {
+      "bucketName": "app-assets-production",
+      "key": "static/js/bundle-62.js"
+    },
+    "readOnly": true
+  },
+  {
+    "_meta": {
+      "id": "BENIGN-063",
+      "category": "BENIGN",
+      "service": "AWS STS"
+    },
+    "eventVersion": "1.08",
+    "userIdentity": {
+      "type": "IAMUser",
+      "userName": "ci-cd-bot",
+      "accountId": "112233445566"
+    },
+    "eventTime": "2026-10-21T07:03:00Z",
+    "eventSource": "sts.amazonaws.com",
+    "eventName": "GetCallerIdentity",
+    "awsRegion": "us-east-1",
+    "sourceIPAddress": "54.210.12.98",
+    "readOnly": true
+  },
+  {
+    "_meta": {
+      "id": "BENIGN-064",
+      "category": "BENIGN",
+      "service": "AWS DynamoDB"
+    },
+    "eventVersion": "1.08",
+    "userIdentity": {
+      "type": "AssumedRole",
+      "arn": "arn:aws:iam::112233445566:role/orders-microservice",
+      "accountId": "112233445566"
+    },
+    "eventTime": "2026-10-21T07:04:00Z",
+    "eventSource": "dynamodb.amazonaws.com",
+    "eventName": "GetItem",
+    "awsRegion": "us-east-1",
+    "sourceIPAddress": "10.100.4.5",
+    "requestParameters": {
+      "tableName": "CustomerOrdersProd",
+      "key": {
+        "order_id": {
+          "S": "ORD-9064"
+        }
+      }
+    },
+    "readOnly": true
+  },
+  {
+    "_meta": {
+      "id": "BENIGN-065",
+      "category": "BENIGN",
+      "service": "Azure Compute"
+    },
+    "time": "2026-10-21T07:05:00Z",
+    "resourceId": "/subscriptions/sub-8491-prod/resourceGroups/rg-web/providers/Microsoft.Compute/virtualMachines/vm-web-0",
+    "operationName": "Microsoft.Compute/virtualMachines/restart/action",
+    "category": "Administrative",
+    "resultType": "Success",
+    "caller": "autoscaler-service@enterprise.onmicrosoft.com"
+  },
+  {
+    "_meta": {
+      "id": "BENIGN-066",
+      "category": "BENIGN",
+      "service": "Azure Storage"
+    },
+    "time": "2026-10-21T07:06:00Z",
+    "resourceId": "/subscriptions/sub-8491-prod/resourceGroups/rg-data/providers/Microsoft.Storage/storageAccounts/stlogs0",
+    "operationName": "Microsoft.Storage/storageAccounts/listKeys/action",
+    "category": "Administrative",
+    "resultType": "Success",
+    "caller": "backup-worker@enterprise.onmicrosoft.com"
+  },
+  {
+    "_meta": {
+      "id": "BENIGN-067",
+      "category": "BENIGN",
+      "service": "GCP Compute"
+    },
+    "protoPayload": {
+      "serviceName": "compute.googleapis.com",
+      "methodName": "v1.compute.instances.get",
+      "resourceName": "projects/project-prod-9921/zones/us-central1-a/instances/backend-node-3",
+      "authenticationInfo": {
+        "principalEmail": "monitoring-agent@project-prod-9921.iam.gserviceaccount.com"
+      }
+    },
+    "timestamp": "2026-10-21T07:07:00Z",
+    "severity": "INFO"
+  },
+  {
+    "_meta": {
+      "id": "BENIGN-068",
+      "category": "BENIGN",
+      "service": "GCP BigQuery"
+    },
+    "protoPayload": {
+      "serviceName": "bigquery.googleapis.com",
+      "methodName": "jobservice.jobcompleted",
+      "resourceName": "projects/project-prod-9921/queries/query-job-7712",
+      "authenticationInfo": {
+        "principalEmail": "analyst-0@enterprise.com"
+      }
+    },
+    "timestamp": "2026-10-21T07:08:00Z",
+    "severity": "INFO"
+  },
+  {
+    "_meta": {
+      "id": "VULN-004",
+      "category": "VULNERABLE",
+      "threat_label": "GCP Cloud Storage Bucket Public Exposure (allUsers)",
+      "mitre_technique": "T1530 - Data from Cloud Storage Object",
+      "benchmark_violation": "CIS-GCP-5.1 / NIST-AC-3"
+    },
+    "protoPayload": {
+      "serviceName": "storage.googleapis.com",
+      "methodName": "storage.setIamPermissions",
+      "resourceName": "projects/_/buckets/gcp-corp-internal-backups",
+      "authenticationInfo": {
+        "principalEmail": "automation-worker@project-prod-9921.iam.gserviceaccount.com"
+      },
+      "serviceData": {
+        "policyDelta": {
+          "bindingDeltas": [
+            {
+              "action": "ADD",
+              "role": "roles/storage.objectViewer",
+              "member": "allUsers"
+            }
+          ]
+        }
+      }
+    },
+    "timestamp": "2026-10-21T06:24:00Z",
+    "severity": "NOTICE",
+    "logName": "projects/project-prod-9921/logs/cloudaudit.googleapis.com%2Factivity"
+  },
+  {
+    "_meta": {
+      "id": "BENIGN-069",
+      "category": "BENIGN",
+      "service": "Kubernetes Pods"
+    },
+    "kind": "Event",
+    "apiVersion": "audit.k8s.io/v1",
+    "level": "Metadata",
+    "stage": "ResponseComplete",
+    "requestURI": "/api/v1/namespaces/default/pods/nginx-ingress-9",
+    "verb": "get",
+    "user": {
+      "username": "system:kube-scheduler"
+    },
+    "responseStatus": {
+      "code": 200
+    },
+    "stageTimestamp": "2026-10-21T07:09:00Z"
+  },
+  {
+    "_meta": {
+      "id": "BENIGN-070",
+      "category": "BENIGN",
+      "service": "AWS VPC Flow"
+    },
+    "version": 2,
+    "accountId": "112233445566",
+    "interfaceId": "eni-0a81b94c0",
+    "srcAddr": "10.0.10.45",
+    "dstAddr": "10.0.1.10",
+    "srcPort": 50062,
+    "dstPort": 443,
+    "protocol": 6,
+    "packets": 32,
+    "bytes": 10000,
+    "start": 1792553000,
+    "end": 1792553060,
+    "action": "ACCEPT",
+    "logStatus": "OK"
+  },
+  {
+    "_meta": {
+      "id": "BENIGN-071",
+      "category": "BENIGN",
+      "service": "AWS IAM"
+    },
+    "eventVersion": "1.08",
+    "userIdentity": {
+      "type": "IAMUser",
+      "userName": "analyst-user-1",
+      "accountId": "112233445566"
+    },
+    "eventTime": "2026-10-21T07:11:00Z",
+    "eventSource": "iam.amazonaws.com",
+    "eventName": "GetAccountSummary",
+    "awsRegion": "us-east-1",
+    "sourceIPAddress": "10.0.71.12",
+    "userAgent": "console.amazonaws.com",
+    "responseElements": null,
+    "readOnly": true
+  },
+  {
+    "_meta": {
+      "id": "BENIGN-072",
+      "category": "BENIGN",
+      "service": "AWS S3"
+    },
+    "eventVersion": "1.08",
+    "userIdentity": {
+      "type": "AssumedRole",
+      "arn": "arn:aws:iam::112233445566:role/app-backend",
+      "accountId": "112233445566"
+    },
+    "eventTime": "2026-10-21T07:12:00Z",
+    "eventSource": "s3.amazonaws.com",
+    "eventName": "GetObject",
+    "awsRegion": "us-east-1",
+    "sourceIPAddress": "172.31.22.4",
+    "requestParameters": {
+      "bucketName": "app-assets-production",
+      "key": "static/js/bundle-72.js"
+    },
+    "readOnly": true
+  },
+  {
+    "_meta": {
+      "id": "DANG-004",
+      "category": "DANGEROUS",
+      "threat_label": "Kubernetes Cluster Takeover: Anonymous Binding of cluster-admin Role",
+      "mitre_technique": "T1078.004 - Cloud Accounts: Kubernetes RBAC",
+      "severity_assessment": "CRITICAL - Complete Control Plane Compromise"
+    },
+    "kind": "Event",
+    "apiVersion": "audit.k8s.io/v1",
+    "level": "RequestResponse",
+    "auditID": "k8s-exploit-91a0f8-1182",
+    "stage": "ResponseComplete",
+    "requestURI": "/apis/rbac.authorization.k8s.io/v1/clusterrolebindings",
+    "verb": "create",
+    "user": {
+      "username": "system:anonymous",
+      "groups": [
+        "system:unauthenticated"
+      ]
+    },
+    "sourceIPs": [
+      "45.154.255.89"
+    ],
+    "objectRef": {
+      "apiGroup": "rbac.authorization.k8s.io",
+      "resource": "clusterrolebindings",
+      "name": "system-backdoor-cluster-admin"
+    },
+    "responseStatus": {
+      "metadata": {},
+      "code": 201
+    },
+    "requestObject": {
+      "apiVersion": "rbac.authorization.k8s.io/v1",
+      "kind": "ClusterRoleBinding",
+      "metadata": {
+        "name": "system-backdoor-cluster-admin"
+      },
+      "roleRef": {
+        "apiGroup": "rbac.authorization.k8s.io",
+        "kind": "ClusterRole",
+        "name": "cluster-admin"
+      },
+      "subjects": [
+        {
+          "kind": "Group",
+          "name": "system:unauthenticated",
+          "apiGroup": "rbac.authorization.k8s.io"
+        }
+      ]
+    },
+    "stageTimestamp": "2026-10-21T06:54:00Z"
+  },
+  {
+    "_meta": {
+      "id": "BENIGN-073",
+      "category": "BENIGN",
+      "service": "AWS STS"
+    },
+    "eventVersion": "1.08",
+    "userIdentity": {
+      "type": "IAMUser",
+      "userName": "ci-cd-bot",
+      "accountId": "112233445566"
+    },
+    "eventTime": "2026-10-21T07:13:00Z",
+    "eventSource": "sts.amazonaws.com",
+    "eventName": "GetCallerIdentity",
+    "awsRegion": "us-east-1",
+    "sourceIPAddress": "54.210.12.98",
+    "readOnly": true
+  },
+  {
+    "_meta": {
+      "id": "BENIGN-074",
+      "category": "BENIGN",
+      "service": "AWS DynamoDB"
+    },
+    "eventVersion": "1.08",
+    "userIdentity": {
+      "type": "AssumedRole",
+      "arn": "arn:aws:iam::112233445566:role/orders-microservice",
+      "accountId": "112233445566"
+    },
+    "eventTime": "2026-10-21T07:14:00Z",
+    "eventSource": "dynamodb.amazonaws.com",
+    "eventName": "GetItem",
+    "awsRegion": "us-east-1",
+    "sourceIPAddress": "10.100.4.5",
+    "requestParameters": {
+      "tableName": "CustomerOrdersProd",
+      "key": {
+        "order_id": {
+          "S": "ORD-9074"
+        }
+      }
+    },
+    "readOnly": true
+  },
+  {
+    "_meta": {
+      "id": "BENIGN-075",
+      "category": "BENIGN",
+      "service": "Azure Compute"
+    },
+    "time": "2026-10-21T07:15:00Z",
+    "resourceId": "/subscriptions/sub-8491-prod/resourceGroups/rg-web/providers/Microsoft.Compute/virtualMachines/vm-web-0",
+    "operationName": "Microsoft.Compute/virtualMachines/restart/action",
+    "category": "Administrative",
+    "resultType": "Success",
+    "caller": "autoscaler-service@enterprise.onmicrosoft.com"
+  },
+  {
+    "_meta": {
+      "id": "BENIGN-076",
+      "category": "BENIGN",
+      "service": "Azure Storage"
+    },
+    "time": "2026-10-21T07:16:00Z",
+    "resourceId": "/subscriptions/sub-8491-prod/resourceGroups/rg-data/providers/Microsoft.Storage/storageAccounts/stlogs1",
+    "operationName": "Microsoft.Storage/storageAccounts/listKeys/action",
+    "category": "Administrative",
+    "resultType": "Success",
+    "caller": "backup-worker@enterprise.onmicrosoft.com"
+  },
+  {
+    "_meta": {
+      "id": "BENIGN-077",
+      "category": "BENIGN",
+      "service": "GCP Compute"
+    },
+    "protoPayload": {
+      "serviceName": "compute.googleapis.com",
+      "methodName": "v1.compute.instances.get",
+      "resourceName": "projects/project-prod-9921/zones/us-central1-a/instances/backend-node-5",
+      "authenticationInfo": {
+        "principalEmail": "monitoring-agent@project-prod-9921.iam.gserviceaccount.com"
+      }
+    },
+    "timestamp": "2026-10-21T07:17:00Z",
+    "severity": "INFO"
+  },
+  {
+    "_meta": {
+      "id": "BENIGN-078",
+      "category": "BENIGN",
+      "service": "GCP BigQuery"
+    },
+    "protoPayload": {
+      "serviceName": "bigquery.googleapis.com",
+      "methodName": "jobservice.jobcompleted",
+      "resourceName": "projects/project-prod-9921/queries/query-job-7712",
+      "authenticationInfo": {
+        "principalEmail": "analyst-2@enterprise.com"
+      }
+    },
+    "timestamp": "2026-10-21T07:18:00Z",
+    "severity": "INFO"
+  },
+  {
+    "_meta": {
+      "id": "BENIGN-079",
+      "category": "BENIGN",
+      "service": "Kubernetes Pods"
+    },
+    "kind": "Event",
+    "apiVersion": "audit.k8s.io/v1",
+    "level": "Metadata",
+    "stage": "ResponseComplete",
+    "requestURI": "/api/v1/namespaces/default/pods/nginx-ingress-9",
+    "verb": "get",
+    "user": {
+      "username": "system:kube-scheduler"
+    },
+    "responseStatus": {
+      "code": 200
+    },
+    "stageTimestamp": "2026-10-21T07:19:00Z"
+  },
+  {
+    "_meta": {
+      "id": "BENIGN-080",
+      "category": "BENIGN",
+      "service": "AWS VPC Flow"
+    },
+    "version": 2,
+    "accountId": "112233445566",
+    "interfaceId": "eni-0a81b94c0",
+    "srcAddr": "10.0.0.45",
+    "dstAddr": "10.0.1.10",
+    "srcPort": 50192,
+    "dstPort": 443,
+    "protocol": 6,
+    "packets": 42,
+    "bytes": 11280,
+    "start": 1792553600,
+    "end": 1792553660,
+    "action": "ACCEPT",
+    "logStatus": "OK"
+  },
+  {
+    "_meta": {
+      "id": "BENIGN-081",
+      "category": "BENIGN",
+      "service": "AWS IAM"
+    },
+    "eventVersion": "1.08",
+    "userIdentity": {
+      "type": "IAMUser",
+      "userName": "analyst-user-1",
+      "accountId": "112233445566"
+    },
+    "eventTime": "2026-10-21T07:21:00Z",
+    "eventSource": "iam.amazonaws.com",
+    "eventName": "GetAccountSummary",
+    "awsRegion": "us-east-1",
+    "sourceIPAddress": "10.0.81.12",
+    "userAgent": "console.amazonaws.com",
+    "responseElements": null,
+    "readOnly": true
+  },
+  {
+    "_meta": {
+      "id": "BENIGN-082",
+      "category": "BENIGN",
+      "service": "AWS S3"
+    },
+    "eventVersion": "1.08",
+    "userIdentity": {
+      "type": "AssumedRole",
+      "arn": "arn:aws:iam::112233445566:role/app-backend",
+      "accountId": "112233445566"
+    },
+    "eventTime": "2026-10-21T07:22:00Z",
+    "eventSource": "s3.amazonaws.com",
+    "eventName": "GetObject",
+    "awsRegion": "us-east-1",
+    "sourceIPAddress": "172.31.32.4",
+    "requestParameters": {
+      "bucketName": "app-assets-production",
+      "key": "static/js/bundle-82.js"
+    },
+    "readOnly": true
+  },
+  {
+    "_meta": {
+      "id": "BENIGN-083",
+      "category": "BENIGN",
+      "service": "AWS STS"
+    },
+    "eventVersion": "1.08",
+    "userIdentity": {
+      "type": "IAMUser",
+      "userName": "ci-cd-bot",
+      "accountId": "112233445566"
+    },
+    "eventTime": "2026-10-21T07:23:00Z",
+    "eventSource": "sts.amazonaws.com",
+    "eventName": "GetCallerIdentity",
+    "awsRegion": "us-east-1",
+    "sourceIPAddress": "54.210.12.98",
+    "readOnly": true
+  },
+  {
+    "_meta": {
+      "id": "BENIGN-084",
+      "category": "BENIGN",
+      "service": "AWS DynamoDB"
+    },
+    "eventVersion": "1.08",
+    "userIdentity": {
+      "type": "AssumedRole",
+      "arn": "arn:aws:iam::112233445566:role/orders-microservice",
+      "accountId": "112233445566"
+    },
+    "eventTime": "2026-10-21T07:24:00Z",
+    "eventSource": "dynamodb.amazonaws.com",
+    "eventName": "GetItem",
+    "awsRegion": "us-east-1",
+    "sourceIPAddress": "10.100.4.5",
+    "requestParameters": {
+      "tableName": "CustomerOrdersProd",
+      "key": {
+        "order_id": {
+          "S": "ORD-9084"
+        }
+      }
+    },
+    "readOnly": true
+  },
+  {
+    "_meta": {
+      "id": "BENIGN-085",
+      "category": "BENIGN",
+      "service": "Azure Compute"
+    },
+    "time": "2026-10-21T07:25:00Z",
+    "resourceId": "/subscriptions/sub-8491-prod/resourceGroups/rg-web/providers/Microsoft.Compute/virtualMachines/vm-web-0",
+    "operationName": "Microsoft.Compute/virtualMachines/restart/action",
+    "category": "Administrative",
+    "resultType": "Success",
+    "caller": "autoscaler-service@enterprise.onmicrosoft.com"
+  },
+  {
+    "_meta": {
+      "id": "BENIGN-086",
+      "category": "BENIGN",
+      "service": "Azure Storage"
+    },
+    "time": "2026-10-21T07:26:00Z",
+    "resourceId": "/subscriptions/sub-8491-prod/resourceGroups/rg-data/providers/Microsoft.Storage/storageAccounts/stlogs2",
+    "operationName": "Microsoft.Storage/storageAccounts/listKeys/action",
+    "category": "Administrative",
+    "resultType": "Success",
+    "caller": "backup-worker@enterprise.onmicrosoft.com"
+  },
+  {
+    "_meta": {
+      "id": "VULN-005",
+      "category": "VULNERABLE",
+      "threat_label": "Kubernetes Privileged Container Deployment (root hostPID)",
+      "mitre_technique": "T1611 - Escape to Host",
+      "benchmark_violation": "CIS-K8s-5.2.1 / NIST-AC-6"
+    },
+    "kind": "Event",
+    "apiVersion": "audit.k8s.io/v1",
+    "level": "RequestResponse",
+    "auditID": "k8s-audit-b2910fa-4029",
+    "stage": "ResponseComplete",
+    "requestURI": "/api/v1/namespaces/production/pods",
+    "verb": "create",
+    "user": {
+      "username": "developer-service-account",
+      "groups": [
+        "system:serviceaccounts",
+        "system:authenticated"
+      ]
+    },
+    "sourceIPs": [
+      "10.244.2.15"
+    ],
+    "objectRef": {
+      "resource": "pods",
+      "namespace": "production",
+      "name": "maintenance-task-pod"
+    },
+    "responseStatus": {
+      "metadata": {},
+      "code": 201
+    },
+    "requestObject": {
+      "spec": {
+        "hostPID": true,
+        "hostNetwork": true,
+        "containers": [
+          {
+            "name": "worker",
+            "image": "ubuntu:latest",
+            "securityContext": {
+              "privileged": true,
+              "runAsUser": 0
+            }
+          }
+        ]
+      }
+    },
+    "stageTimestamp": "2026-10-21T06:30:00Z"
+  },
+  {
+    "_meta": {
+      "id": "BENIGN-087",
+      "category": "BENIGN",
+      "service": "GCP Compute"
+    },
+    "protoPayload": {
+      "serviceName": "compute.googleapis.com",
+      "methodName": "v1.compute.instances.get",
+      "resourceName": "projects/project-prod-9921/zones/us-central1-a/instances/backend-node-7",
+      "authenticationInfo": {
+        "principalEmail": "monitoring-agent@project-prod-9921.iam.gserviceaccount.com"
+      }
+    },
+    "timestamp": "2026-10-21T07:27:00Z",
+    "severity": "INFO"
+  },
+  {
+    "_meta": {
+      "id": "BENIGN-088",
+      "category": "BENIGN",
+      "service": "GCP BigQuery"
+    },
+    "protoPayload": {
+      "serviceName": "bigquery.googleapis.com",
+      "methodName": "jobservice.jobcompleted",
+      "resourceName": "projects/project-prod-9921/queries/query-job-7712",
+      "authenticationInfo": {
+        "principalEmail": "analyst-0@enterprise.com"
+      }
+    },
+    "timestamp": "2026-10-21T07:28:00Z",
+    "severity": "INFO"
+  },
+  {
+    "_meta": {
+      "id": "BENIGN-089",
+      "category": "BENIGN",
+      "service": "Kubernetes Pods"
+    },
+    "kind": "Event",
+    "apiVersion": "audit.k8s.io/v1",
+    "level": "Metadata",
+    "stage": "ResponseComplete",
+    "requestURI": "/api/v1/namespaces/default/pods/nginx-ingress-9",
+    "verb": "get",
+    "user": {
+      "username": "system:kube-scheduler"
+    },
+    "responseStatus": {
+      "code": 200
+    },
+    "stageTimestamp": "2026-10-21T07:29:00Z"
+  },
+  {
+    "_meta": {
+      "id": "BENIGN-090",
+      "category": "BENIGN",
+      "service": "AWS VPC Flow"
+    },
+    "version": 2,
+    "accountId": "112233445566",
+    "interfaceId": "eni-0a81b94c0",
+    "srcAddr": "10.0.10.45",
+    "dstAddr": "10.0.1.10",
+    "srcPort": 50322,
+    "dstPort": 443,
+    "protocol": 6,
+    "packets": 52,
+    "bytes": 12560,
+    "start": 1792554200,
+    "end": 1792554260,
+    "action": "ACCEPT",
+    "logStatus": "OK"
+  },
+  {
+    "_meta": {
+      "id": "DANG-005",
+      "category": "DANGEROUS",
+      "threat_label": "GCP Ransomware Staging: Destruction of Cloud KMS CryptoKey + Disk Deletions",
+      "mitre_technique": "T1485 - Data Destruction",
+      "severity_assessment": "CRITICAL - Unrecoverable Enterprise Data Destruction"
+    },
+    "protoPayload": {
+      "serviceName": "cloudkms.googleapis.com",
+      "methodName": "google.cloud.kms.v1.KeyManagementService.DestroyCryptoKeyVersion",
+      "resourceName": "projects/project-prod-9921/locations/global/keyRings/prod-db-keys/cryptoKeys/master-encryption-key/cryptoKeyVersions/1",
+      "authenticationInfo": {
+        "principalEmail": "compromised-sa@project-prod-9921.iam.gserviceaccount.com"
+      },
+      "request": {
+        "name": "projects/project-prod-9921/locations/global/keyRings/prod-db-keys/cryptoKeys/master-encryption-key/cryptoKeyVersions/1"
+      },
+      "serviceData": {
+        "action": "DESTROY_CRYPTO_KEY_VERSION"
+      }
+    },
+    "timestamp": "2026-10-21T06:59:00Z",
+    "severity": "CRITICAL",
+    "logName": "projects/project-prod-9921/logs/cloudaudit.googleapis.com%2Factivity"
+  }
+]
