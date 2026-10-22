@@ -10,9 +10,29 @@ load_dotenv()
 
 # Base Paths
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-DATA_DIR = PROJECT_ROOT / "data"
-SESSIONS_DIR = DATA_DIR / "sessions"
-BENCHMARKS_DIR = DATA_DIR / "benchmarks"
+
+# Detect read-only serverless environment (e.g., Vercel / AWS Lambda)
+is_serverless = bool(os.getenv("VERCEL") or os.getenv("AWS_LAMBDA_FUNCTION_NAME"))
+
+if is_serverless:
+    DATA_DIR = Path("/tmp/data")
+    SESSIONS_DIR = DATA_DIR / "sessions"
+    BENCHMARKS_DIR = DATA_DIR / "benchmarks"
+else:
+    DATA_DIR = PROJECT_ROOT / "data"
+    SESSIONS_DIR = DATA_DIR / "sessions"
+    BENCHMARKS_DIR = DATA_DIR / "benchmarks"
+
+# Safely create writable directories
+try:
+    os.makedirs(SESSIONS_DIR, exist_ok=True)
+    os.makedirs(BENCHMARKS_DIR, exist_ok=True)
+except (OSError, PermissionError):
+    DATA_DIR = Path("/tmp/data")
+    SESSIONS_DIR = DATA_DIR / "sessions"
+    BENCHMARKS_DIR = DATA_DIR / "benchmarks"
+    os.makedirs(SESSIONS_DIR, exist_ok=True)
+    os.makedirs(BENCHMARKS_DIR, exist_ok=True)
 
 
 class Settings(BaseModel):
@@ -40,7 +60,3 @@ class Settings(BaseModel):
 
 
 settings = Settings()
-
-# Ensure directories exist
-os.makedirs(SESSIONS_DIR, exist_ok=True)
-os.makedirs(BENCHMARKS_DIR, exist_ok=True)

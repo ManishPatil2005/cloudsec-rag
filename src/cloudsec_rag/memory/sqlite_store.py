@@ -16,8 +16,15 @@ class SQLiteEpisodicStore:
     """Persistent SQLite database maintaining audit trails and incident triage states."""
 
     def __init__(self, db_path: str = "data/sessions/cloudsec_memory.db"):
+        import os
+        if os.getenv("VERCEL") or os.getenv("AWS_LAMBDA_FUNCTION_NAME"):
+            db_path = "/tmp/cloudsec_memory.db"
+        try:
+            Path(db_path).parent.mkdir(parents=True, exist_ok=True)
+        except (OSError, PermissionError):
+            db_path = "/tmp/cloudsec_memory.db"
+            Path(db_path).parent.mkdir(parents=True, exist_ok=True)
         self.db_path = db_path
-        Path(db_path).parent.mkdir(parents=True, exist_ok=True)
         self._init_schema()
 
     @contextmanager

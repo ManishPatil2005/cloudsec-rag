@@ -187,10 +187,15 @@ def get_sample_logs_catalog():
     """Retrieve master catalog of multi-cloud telemetry scenarios from sample_logs.json."""
     import json
     from pathlib import Path
-    sample_file = Path(__file__).resolve().parent.parent.parent.parent / "data" / "sample_logs.json"
-    if sample_file.exists():
-        with open(sample_file, "r", encoding="utf-8") as f:
-            return json.load(f)
+    candidates = [
+        Path(__file__).resolve().parent.parent.parent.parent / "data" / "sample_logs.json",
+        Path("data/sample_logs.json"),
+        Path("/var/task/data/sample_logs.json"),
+    ]
+    for sample_file in candidates:
+        if sample_file.exists():
+            with open(sample_file, "r", encoding="utf-8") as f:
+                return json.load(f)
     return {"scenarios": []}
 
 
@@ -198,8 +203,13 @@ def get_sample_logs_catalog():
 def get_security_rules_doc():
     """Retrieve platform Security & Governance Rules."""
     from pathlib import Path
-    rules_file = Path(__file__).resolve().parent.parent.parent.parent / "docs" / "SECURITY_RULES.md"
-    if rules_file.exists():
-        with open(rules_file, "r", encoding="utf-8") as f:
-            return {"content": f.read()}
+    candidates = [
+        Path(__file__).resolve().parent.parent.parent.parent / "docs" / "SECURITY_RULES.md",
+        Path("docs/SECURITY_RULES.md"),
+        Path("/var/task/docs/SECURITY_RULES.md"),
+    ]
+    for rules_file in candidates:
+        if rules_file.exists():
+            with open(rules_file, "r", encoding="utf-8") as f:
+                return {"content": f.read()}
     return {"content": "Security rules document not found."}
