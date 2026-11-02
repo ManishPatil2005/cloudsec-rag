@@ -58,11 +58,15 @@ class SecurityPatchingEngine:
             explanation=explanation,
         )
 
-        # Validate patch safety
+        # Validate patch safety across CLI commands and IaC code
         is_valid, reasons = self.validator.validate(patch)
         if not is_valid:
-            # Degrade to safe comment mode if validation flagged issues
+            # Degrade CLI command AND IaC template to safe comment mode if validation flagged issues
             patch.command = f"# SAFETY WARNING: Automated command was blocked:\n# {reasons[0]}\n# Manual verification required."
+            if patch.iac_code:
+                patch.iac_code = f"# SAFETY WARNING: Automated IaC patch was blocked:\n# {reasons[0]}\n# Manual verification required."
+            patch.is_destructive = True
+            patch.explanation = f"BLOCKED BY ZERO-TRUST GUARDRAIL: {reasons[0]}"
 
         return patch
 

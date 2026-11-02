@@ -1,19 +1,20 @@
 """Patch Safety & Blast-Radius Validator.
 
-Inspects generated CLI and IaC commands against destructive operation blacklists
-and determines potential infrastructure blast-radius.
+Inspects generated CLI and IaC commands against destructive operation blacklists,
+shell injection vectors (pipes, subshells), and unauthorized binary executions.
 """
 
 import re
+import shlex
 from typing import List, Tuple
 from ..core.exceptions import PatchValidationFailedError
 from ..core.types import BlastRadius, PatchAction
 
 
 class PatchValidator:
-    """Validates command safety, syntax boundaries, and blasts radius."""
+    """Validates command safety, syntax boundaries, and blast radius."""
 
-    # Explicitly forbidden destructive operations
+    # Explicitly forbidden destructive operations across AWS, Azure, GCP, and K8s
     DESTRUCTIVE_COMMAND_BLACKLIST = [
         r"(?i)\brm\s+-rf\b",
         r"(?i)\bdelete-vpc\b",
@@ -24,6 +25,24 @@ class PatchValidator:
         r"(?i)\bformat\s+[a-z]:\b",
         r"(?i)\bdelete-subscription\b",
         r"(?i)\bdestroy\b",
+        r"(?i)\bdelete-db-instance\b",
+        r"(?i)\bdelete-role\b",
+        r"(?i)\bgroup\s+delete\b",
+        r"(?i)\bvm\s+delete\b",
+        r"(?i)\baks\s+delete\b",
+        r"(?i)\bprojects\s+delete\b",
+        r"(?i)\bdelete\s+namespace\b",
+        r"(?i)\bdelete\s+all\s+--all\b",
+    ]
+
+    # Dangerous shell injection patterns (subshells, piping to interpreters, command substitution)
+    SHELL_INJECTION_PATTERNS = [
+        r"\$\([^\)]+\)",                       # Command substitution $(cmd)
+        r"`[^`]+`",                            # Backtick substitution `cmd`
+        r"\|\s*(?:ba|z|c|da|k)?sh\b",          # Pipe to shell | sh, | bash
+        r"\|\s*python[0-9.]*\b",               # Pipe to python
+        r"\|\s*powershell\b",                  # Pipe to powershell
+        r">\s*\/etc\/",                        # Redirection to system directories
     ]
 
     # Allowed safe CLI command binaries
@@ -31,10 +50,11 @@ class PatchValidator:
 
     def __init__(self):
         self.compiled_blacklist = [re.compile(p) for p in self.DESTRUCTIVE_COMMAND_BLACKLIST]
+        self.compiled_injection_patterns = [re.compile(p, re.IGNORECASE) for p in self.SHELL_INJECTION_PATTERNS]
 
     def validate(self, patch: PatchAction) -> Tuple[bool, List[str]]:
         """
-        Validate safety of patch action.
+        Validate safety of patch action across CLI commands and IaC templates.
         
         Returns:
             Tuple of (is_valid, list_of_reasons_if_invalid)
@@ -45,11 +65,16 @@ class PatchValidator:
         if not raw_cmd:
             return False, ["Command string is empty."]
 
-        # Check binary authorization
+        # 1. Check for Shell Injection / Command Substitution in CLI
+        for pattern in self.compiled_injection_patterns:
+            if pattern.search(raw_cmd):
+                issues.append(f"Command contains forbidden shell injection pattern: '{pattern.pattern}'.")
+
+        # 2. Check binary authorization
         lines = [line.strip() for line in raw_cmd.split("\n") if line.strip() and not line.strip().startswith("#")]
         for line in lines:
-            # Handle multiple piped or chained commands
-            subcmds = re.split(r"&&|\|\||;", line)
+            # Handle multiple chained commands (&&, ||, ;, and |)
+            subcmds = re.split(r"&&|\|\||;|\|", line)
             for subcmd in subcmds:
                 subcmd = subcmd.strip()
                 if not subcmd:
@@ -58,10 +83,16 @@ class PatchValidator:
                 if first_token not in self.ALLOWED_BINARIES:
                     issues.append(f"Command binary '{first_token}' is not an authorized cloud CLI tool.")
 
-        # Check destructive blacklist
+        # 3. Check destructive blacklist against CLI command
         for pattern in self.compiled_blacklist:
             if pattern.search(raw_cmd):
                 issues.append(f"Command violates zero-trust safety policy: matches forbidden pattern '{pattern.pattern}'.")
+
+        # 4. Check destructive blacklist against IaC template
+        if patch.iac_code:
+            for pattern in self.compiled_blacklist:
+                if pattern.search(patch.iac_code):
+                    issues.append(f"IaC template violates zero-trust safety policy: matches forbidden pattern '{pattern.pattern}'.")
 
         is_valid = len(issues) == 0
         return is_valid, issues

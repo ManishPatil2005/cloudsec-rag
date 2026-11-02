@@ -1,5 +1,6 @@
 """FastAPI REST API Routes for CloudSec-RAG v1 and v2."""
 
+import logging
 from typing import Any, Dict, List, Optional
 from fastapi import APIRouter, HTTPException, status
 from pydantic import BaseModel, Field
@@ -18,6 +19,8 @@ from ..rag.knowledge_base import get_default_benchmarks
 from ..v2.orchestrator_v2 import CloudSecPipelineV2
 from ..v2.types import GroundedAnalysisV2, NetworkTopologyContext, PermissionContext
 
+logger = logging.getLogger(__name__)
+
 router = APIRouter(prefix="/api", tags=["Cloud Security Operations"])
 
 pipeline_v1 = CloudSecPipeline()
@@ -26,13 +29,13 @@ copilot_service = CopilotSecurityService()
 
 
 class AnalyzeRequest(BaseModel):
-    raw_log: str = Field(..., description="Raw cloud log, alert text, JSON, or Kubernetes YAML")
+    raw_log: str = Field(..., max_length=65536, description="Raw cloud log, alert text, JSON, or Kubernetes YAML (max 64KB)")
     provider_hint: Optional[str] = Field(None, description="Optional provider hint (AWS, AZURE, GCP, KUBERNETES)")
     session_id: Optional[str] = Field(None, description="Working session identifier")
 
 
 class AnalyzeRequestV2(BaseModel):
-    raw_log: str = Field(..., description="Raw cloud log, alert text, JSON, or Kubernetes YAML")
+    raw_log: str = Field(..., max_length=65536, description="Raw cloud log, alert text, JSON, or Kubernetes YAML (max 64KB)")
     provider_hint: Optional[str] = Field(None, description="Optional provider hint (AWS, AZURE, GCP, KUBERNETES)")
     session_id: Optional[str] = Field(None, description="Working session identifier")
     is_public_subnet: bool = Field(True, description="Whether resource is in a public subnet with IGW route")
@@ -76,6 +79,7 @@ def analyze_cloud_log_v1(req: AnalyzeRequest):
         )
         return analysis
     except PromptInjectionAttemptError as e:
+        logger.warning("Prompt injection rejected in v1 analyze: %s", e)
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail={
@@ -86,9 +90,10 @@ def analyze_cloud_log_v1(req: AnalyzeRequest):
             },
         )
     except Exception as e:
+        logger.exception("Unexpected error in v1 analyze: %s", e)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Analysis pipeline error: {str(e)}",
+            detail="Analysis pipeline error occurred. Contact SecOps.",
         )
 
 
@@ -120,6 +125,7 @@ def analyze_cloud_log_v2(req: AnalyzeRequestV2):
         )
         return analysis_v2
     except PromptInjectionAttemptError as e:
+        logger.warning("Prompt injection rejected in v2 analyze: %s", e)
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail={
@@ -130,9 +136,10 @@ def analyze_cloud_log_v2(req: AnalyzeRequestV2):
             },
         )
     except Exception as e:
+        logger.exception("Unexpected error in v2 analyze: %s", e)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"v2 Analysis error: {str(e)}",
+            detail="v2 Analysis error occurred. Contact SecOps.",
         )
 
 
@@ -145,11 +152,18 @@ def copilot_chat_endpoint(req: CopilotMessageRequest):
 @router.post("/v1/hitl/decision", response_model=HITLDecision)
 def submit_hitl_decision(req: HITLRequest):
     """Submit human operator approval or rejection for a security patch."""
+    decision_clean = req.decision.strip().upper()
+    if decision_clean not in ["APPROVED", "REJECTED"]:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="Invalid HITL decision. Allowed values: 'APPROVED' or 'REJECTED'.",
+        )
+
     decision = HITLDecision(
         decision_id=f"HITL-API-{req.incident_id[:8]}",
         incident_id=req.incident_id,
         patch_id=req.patch_id,
-        decision=req.decision.upper(),
+        decision=decision_clean,
         operator_id=req.operator_id,
         notes=req.notes,
     )
@@ -160,7 +174,8 @@ def submit_hitl_decision(req: HITLRequest):
 @router.get("/v1/incidents", response_model=List[Dict[str, Any]])
 def list_recent_incidents(limit: int = 25):
     """List recent cloud security incidents recorded in persistent SQLite memory."""
-    return pipeline_v1.sqlite_store.get_recent_incidents(limit=limit)
+    safe_limit = min(max(1, limit), 100)
+    return pipeline_v1.sqlite_store.get_recent_incidents(limit=safe_limit)
 
 
 @router.get("/v1/incidents/{incident_id}")
