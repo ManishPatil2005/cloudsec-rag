@@ -14,6 +14,7 @@ class CloudSecRetriever:
 
     def __init__(self, vector_store: Optional[HybridVectorStore] = None):
         self.vector_store = vector_store or HybridVectorStore()
+        self._retrieval_cache = {}
         if not self.vector_store.documents:
             # Seed with default authoritative benchmarks
             self.vector_store.add_documents(get_default_benchmarks())
@@ -31,8 +32,14 @@ class CloudSecRetriever:
         ]
         query = " ".join(query_parts)
 
-        # 2. Execute hybrid search
-        matches = self.vector_store.search_hybrid(query=query, top_k=top_k)
+        # 2. Execute hybrid search with pattern caching
+        cache_key = (incident.provider.value, incident.event_name, top_k)
+        if cache_key in self._retrieval_cache:
+            matches = self._retrieval_cache[cache_key]
+        else:
+            matches = self.vector_store.search_hybrid(query=query, top_k=top_k)
+            if len(self._retrieval_cache) < 2000:
+                self._retrieval_cache[cache_key] = matches
 
         # 3. Filter / prioritize provider alignment if available
         filtered_matches = []

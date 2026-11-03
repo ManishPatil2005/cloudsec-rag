@@ -25,11 +25,18 @@ class SQLiteEpisodicStore:
             db_path = "/tmp/cloudsec_memory.db"
             Path(db_path).parent.mkdir(parents=True, exist_ok=True)
         self.db_path = db_path
+        self._shared_conn = None
+        if db_path == ":memory:":
+            self._shared_conn = sqlite3.connect(":memory:", check_same_thread=False)
+            self._shared_conn.row_factory = sqlite3.Row
         self._init_schema()
 
     @contextmanager
     def _connection(self):
         """Context manager that guarantees connection is closed on exit."""
+        if self._shared_conn is not None:
+            yield self._shared_conn
+            return
         conn = sqlite3.connect(self.db_path)
         conn.row_factory = sqlite3.Row
         try:

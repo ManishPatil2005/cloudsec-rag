@@ -128,33 +128,37 @@ class CloudSecPipelineV2:
             # 4. Check Topology Graph for Toxic Combinations
             toxic_combo = self._check_toxic_paths(incident)
 
-            # 5. Hybrid RAG retrieval
-            benchmarks = self.base_pipeline.retriever.retrieve_grounded_controls(incident, top_k=3)
-
-            # 6. Sustainable Hierarchical Routing (Green AI)
+            # 5. Tier-0 Cache Check (Green-AI: 0ms, 0 tokens, bypass retrieval on cache hit)
             tier_used, cached_analysis = self.sustainable_router.route_incident(
-                incident=incident, benchmarks=benchmarks, toxic_combo=toxic_combo
+                incident=incident, benchmarks=[], toxic_combo=toxic_combo
             )
 
             tokens_consumed = 0
             if tier_used == SustainableTier.TIER_0_CACHE and cached_analysis:
                 # 0 tokens, instant hit
                 base_analysis = cached_analysis
-                tokens_consumed = 0
-            elif tier_used == SustainableTier.TIER_1_LOCAL_SLM:
-                # 0 LLM tokens: Use deterministic grounded baseline
-                base_analysis = self.base_pipeline.output_validator.create_deterministic_fallback(
-                    incident, benchmarks
-                )
-                tokens_consumed = 0
-                self.sustainable_router.cache_resolution(incident, base_analysis)
+                benchmarks = base_analysis.verified_citations or []
             else:
-                # Tier-2: Deep LLM Reasoning for complex or toxic combinations
-                base_analysis = self.base_pipeline.analyze_incident(
-                    raw_input=raw_input, session_id=session_id, provider_hint=provider_hint
+                # 6. Hybrid RAG retrieval for uncached novel incidents
+                benchmarks = self.base_pipeline.retriever.retrieve_grounded_controls(incident, top_k=3)
+
+                tier_used, _ = self.sustainable_router.route_incident(
+                    incident=incident, benchmarks=benchmarks, toxic_combo=toxic_combo
                 )
-                tokens_consumed = 1250
-                self.sustainable_router.cache_resolution(incident, base_analysis)
+
+                if tier_used == SustainableTier.TIER_1_LOCAL_SLM:
+                    # 0 LLM tokens: Use deterministic grounded baseline
+                    base_analysis = self.base_pipeline.output_validator.create_deterministic_fallback(
+                        incident, benchmarks
+                    )
+                    self.sustainable_router.cache_resolution(incident, base_analysis)
+                else:
+                    # Tier-2: Deep LLM Reasoning for complex or toxic combinations
+                    base_analysis = self.base_pipeline.analyze_incident(
+                        raw_input=raw_input, session_id=session_id, provider_hint=provider_hint
+                    )
+                    tokens_consumed = 1250
+                    self.sustainable_router.cache_resolution(incident, base_analysis)
 
             # 7. Apply Toxic Combination Escalation
             if toxic_combo:
